@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springkernel.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="org.sakaiproject.id.api.IdManager"
+			class="org.sakaiproject.id.impl.UuidV4IdComponent"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+	</bean>
+
+	<bean id="org.sakaiproject.thread_local.api.ThreadLocalManager"
+			class="org.sakaiproject.thread_local.impl.ThreadLocalComponent"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+	</bean>
+
+	<bean id="org.sakaiproject.time.api.TimeService"
+			class="org.sakaiproject.time.impl.BasicTimeService"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+	</bean>
+
+</beans>
