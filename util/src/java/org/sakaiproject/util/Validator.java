@@ -36,7 +36,7 @@ public class Validator
 	private static Log M_log = LogFactory.getLog(Validator.class);
 
 	/** These characters are not allowed in a resource id */
-	protected static final String INVALID_CHARS_IN_RESOURCE_ID = "^/\\{}[]()%*?#&=\n\r\t\b\f";
+	public static final String INVALID_CHARS_IN_RESOURCE_ID = "^/\\{}[]()%*?#&=\n\r\t\b\f";
 
 	/** These characters are not allowed in a user id */
 	protected static final String INVALID_CHARS_IN_USER_ID = "^/\\%*?\n\r\t\b\f";
@@ -950,38 +950,4 @@ public class Validator
 
 		return true;
 	}
-
-/**
-* Check for a valid resource reference.
-* @exception IdInvalidException if the id is invalid.
-*/
-// TODO: restore or move to entity -ggolden
-/*	public static boolean checkResourceRef(String ref)
-{
-	// the rules:
-	//	Null is rejected
-	//	all blank is rejected
-	//	INVALID_CHARS_IN_RESOURCE_ID characters are rejected
-	
-	Reference r = EntityManager.newReference(ref);
-	
-	// just check the id... %%% need more? -ggolden
-	String id = r.getId();
-
-	if (id == null) return false;
-	if (id.trim().length() == 0) return false;
-
-	// we must reject certain characters that we cannot even escape and get into Tomcat via a URL
-	for (int i = 0; i < id.length(); i++)
-	{
-		if (INVALID_CHARS_IN_RESOURCE_ID.indexOf(id.charAt(i)) != -1)
-			return false;
-	}
-
-	return true;
-
-}	// checkResourceRef
-*/
-
 }
-
