@@ -39,7 +39,7 @@ public class CopyrightException extends Exception
 		m_ref = ref;
 	}
 
-	public String getRef()
+	public String getReference()
 	{
 		return m_ref;
 	}
