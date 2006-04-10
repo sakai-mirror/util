@@ -643,11 +643,10 @@ public class Validator
 	/**
 	 * Determine whether a file resource should be opened in the current window or a new window.
 	 * 
-	 * @param properties
-	 *        The properties for a file resource
+	 * @param contentType
+	 *        The content type to check
 	 * @return A string identifying the window in which to open the resource: "_self" to open the resource in the current window, "_blank" for a new window, or an empty string if the resource is not a file.
 	 */
-	// TODO: was ResourceProperties, and we got the PROP_CONTENT_TYPE value... now we have to pass it in -ggolden
 	public static String getResourceTarget(String contentType)
 	{
 		// we will open a new window unless...
