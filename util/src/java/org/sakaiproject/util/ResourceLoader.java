@@ -21,6 +21,7 @@
 
 package org.sakaiproject.util;
 
+import java.lang.Object;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -52,6 +53,56 @@ public class ResourceLoader extends DummyMap implements Map
 	protected String baseName = null;
 
 	protected Hashtable bundles = new Hashtable();
+    
+    /**
+     * Return string value for specified property in current locale specific ResourceBundle
+     *
+     * @param key property key to look up in current ResourceBundle
+     * @param dflt the default value to be returned in case the property is missing
+     *
+     * @return String value for specified property key
+     */
+     public String getString(String key, String dflt) 
+     {
+         try 
+         {
+             return getBundle().getString(key);
+         } 
+         catch (MissingResourceException e) 
+         {
+             return dflt;
+         }
+     }
+    
+	/****
+	 * Access some named property values as an array of strings. The name is the base name. name + ".count" must be defined to be a positive integer - how many are defined. name + "." + i (1..count) must be defined to be the values.
+	 * 
+	 * @param key property key to look up in current ResourceBundle
+	 * @return The property value with this name, or the null if not found.
+	 */
+	public String[] getStrings(String key)
+	{
+		// get the count
+		int count = getInt(key + ".count", 0);
+		if (count > 0)
+		{
+			String[] rv = new String[count];
+			for (int i = 1; i <= count; i++)
+			{
+				String value = "";
+				try
+				{
+					value = getBundle().getString(key + "." + i);
+				}
+				catch (MissingResourceException e)
+				{
+					// ignore the exception
+				}
+				rv[i - 1] = value;
+			}
+			return rv;
+		}
+	}
 
 	/**
 	 * Default constructor (does nothing)
@@ -59,6 +110,30 @@ public class ResourceLoader extends DummyMap implements Map
 	public ResourceLoader()
 	{
 		M_log.debug("init");
+	}
+
+	/**
+	 * Access some named configuration value as an int.
+	 * 
+	 * @param key property key to look up in current ResourceBundle
+	 * @param dflt The value to return if not found.
+	 * @return The property value with this name, or the default value if not found.
+	 */
+	public int getInt(String key, int dflt)
+	{
+		String value = getString(key);
+
+		if (value.length() == 0) return dflt;
+
+		try
+		{
+			return Integer.parseInt(value);
+		}
+		catch (NumberFormatException e)
+		{
+			// ignore
+			return dflt;
+		}
 	}
 
 	/**
