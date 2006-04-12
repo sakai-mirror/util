@@ -102,6 +102,8 @@ public class ResourceLoader extends DummyMap implements Map
 			}
 			return rv;
 		}
+		
+		return null;
 	}
 
 	/**
