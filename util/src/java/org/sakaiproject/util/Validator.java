@@ -535,8 +535,7 @@ public class Validator
 	/**
 	 * Check for a valid resource id.
 	 * 
-	 * @exception IdInvalidException
-	 *            if the id is invalid.
+	 * @return true if valid, false if not
 	 */
 	public static boolean checkResourceId(String id)
 	{
