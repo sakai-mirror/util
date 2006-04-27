@@ -30,7 +30,7 @@ import org.sakaiproject.component.cover.ComponentManager;
  */
 public class TimeService
 {
-	public static java.lang.String SERVICE_NAME = org.sakaiproject.time.api.TimeService.SERVICE_NAME;
+	public static java.lang.String APPLICATION_ID = org.sakaiproject.time.api.TimeService.APPLICATION_ID;
 
 	public static java.lang.String TIMEZONE_KEY = org.sakaiproject.time.api.TimeService.TIMEZONE_KEY;
 

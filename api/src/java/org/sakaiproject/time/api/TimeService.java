@@ -31,8 +31,8 @@ import java.util.TimeZone;
  */
 public interface TimeService
 {
-	/** This string can be used to find the service in the service manager. */
-	public static final String SERVICE_NAME = TimeService.class.getName();
+	/** The type string for this "application": should not change over time as it may be stored in various parts of persistent entities. */
+	static final String APPLICATION_ID = "sakai:time";
 
 	/** Preferences key for user's time zone */
 	public static final String TIMEZONE_KEY = "timezone";

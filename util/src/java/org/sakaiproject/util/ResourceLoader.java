@@ -42,8 +42,8 @@ import org.apache.commons.logging.LogFactory;
  */
 public class ResourceLoader extends DummyMap implements Map
 {
-	/** This string is used by the UserPrefsTool (imitating a service) */
-	public static final String PREFS_KEY = ResourceLoader.class.getName();
+	/** The type string for this "application": should not change over time as it may be stored in various parts of persistent entities. */
+	public static final String APPLICATION_ID = "sakai:resourceloader";
 
 	/** Preferences key for user's regional language locale */
 	public static final String LOCALE_KEY = "locale";
