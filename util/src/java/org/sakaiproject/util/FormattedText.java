@@ -81,6 +81,19 @@ public class FormattedText
 			M_evilTagsPatterns[i] = Pattern.compile(".*<\\s*" + M_evilTags[i] + ".*>.*", Pattern.CASE_INSENSITIVE
 					| Pattern.UNICODE_CASE | Pattern.DOTALL);
 		}
+
+		M_goodTagsPatterns = new Pattern[M_goodTags.length];
+		M_goodCloseTagsPatterns = new Pattern[M_goodTags.length];
+		for (int i = 0; i < M_goodTags.length; i++)
+		{
+			// matches the start of the particular good tag "<" followed by whitespace,
+			// followed by the tag name, followed by anything, followed by ">", case insensitive,
+			// allowed to match over multiple lines.
+			M_goodTagsPatterns[i] = Pattern.compile(".*<\\s*" + M_goodTags[i] + ".*>.*", Pattern.CASE_INSENSITIVE
+					| Pattern.UNICODE_CASE | Pattern.DOTALL);
+			M_goodCloseTagsPatterns[i] = Pattern.compile("<\\s*/\\s*" + M_goodTags[i] + "(\\s.*>|>)", Pattern.CASE_INSENSITIVE
+					| Pattern.UNICODE_CASE | Pattern.DOTALL);
+		}
 	}
 
 	/** Matches HTML-style line breaks like &lt;br&gt; */
