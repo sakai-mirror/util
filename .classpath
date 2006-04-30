@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry excluding="**/.DS_Store" kind="src" path="api/src/java"/>
+	<classpathentry excluding="**/.DS_Store" kind="src" path="hbm/src/java"/>
 	<classpathentry excluding="**/.DS_Store" kind="src" path="impl/src/java"/>
 	<classpathentry excluding="**/.DS_Store" kind="src" path="util/src/java"/>
 	<classpathentry sourcepath="JRE_SRC" kind="var" path="JRE_LIB"/>
@@ -9,5 +10,6 @@
 	<classpathentry kind="var" path="MAVEN_REPO/xerces/jars/xercesImpl-2.6.2.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/component-api"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-id/jars/commons-id-0.1-dev.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/hibernate/jars/hibernate-2.1.8.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
