@@ -3,7 +3,7 @@
  * $Id: SuTool.java 5970 2006-02-15 03:07:19Z ggolden@umich.edu $
  ***********************************************************************************
  *
- * Copyright (c) 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -22,20 +22,28 @@
 package org.sakaiproject.util;
 
 import java.text.MessageFormat;
+import java.util.Collection;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Locale;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.cover.PreferencesService;
 
 /**
  * ResourceLoader provides an alternate implementation of org.util.ResourceBundle, dynamically selecting the prefered locale from either the user's session or from the user's sakai preferences
  * 
  * @author Sugiura, Tatsuki (University of Nagoya)
  */
-public class ResourceLoader
+public class ResourceLoader extends DummyMap implements Map
 {
 	/** The type string for this "application": should not change over time as it may be stored in various parts of persistent entities. */
 	public static final String APPLICATION_ID = "sakai:resourceloader";
@@ -43,13 +51,10 @@ public class ResourceLoader
 	/** Preferences key for user's regional language locale */
 	public static final String LOCALE_KEY = "locale";
 
-	/** My Logger. */
 	protected static Log M_log = LogFactory.getLog(ResourceLoader.class);
 
-	/** The base file name for the bundles. */
 	protected String baseName = null;
 
-	/** The collection of bundles, keyed by locale. */
 	protected Hashtable bundles = new Hashtable();
 
 	/**
@@ -70,19 +75,53 @@ public class ResourceLoader
 		setBaseName(name);
 	}
 
+	public Set entrySet()
+	{
+		return getBundleAsMap().entrySet();
+	}
+
 	/**
-	 * Access a message from the preferred bundle formatted.
+	 * * Return (generic object) value for specified property in current locale specific ResourceBundle * *
 	 * 
 	 * @param key
-	 *        The message key
-	 * @param args
-	 *        Parameters for the formatting pattern.
-	 * @return The formatted message.
+	 *        property key to look up in current ResourceBundle * *
+	 * @return value for specified property key
 	 */
-	public Object getFormattedMessage(String key, Object[] args)
+	public Object get(Object key)
 	{
-		String pattern = getString(key);
+		return getString(key.toString());
+	}
+
+	public Object getFormattedMessage(Object key, Object[] args)
+	{
+		String pattern = (String) get(key);
 		return MessageFormat.format(pattern, args);
+	}
+
+	/**
+	 * Access some named configuration value as an int.
+	 * 
+	 * @param key
+	 *        property key to look up in current ResourceBundle
+	 * @param dflt
+	 *        The value to return if not found.
+	 * @return The property value with this name, or the default value if not found.
+	 */
+	public int getInt(String key, int dflt)
+	{
+		String value = getString(key);
+
+		if (value.length() == 0) return dflt;
+
+		try
+		{
+			return Integer.parseInt(value);
+		}
+		catch (NumberFormatException e)
+		{
+			// ignore
+			return dflt;
+		}
 	}
 
 	/**
@@ -95,36 +134,36 @@ public class ResourceLoader
 		Locale loc = null;
 
 		// First: find locale from Sakai user preferences, if available
-//		try
-//		{
-//			String userId = SessionManager.getCurrentSessionUserId();
-//			Preferences prefs = PreferencesService.getPreferences(userId);
-//			ResourceProperties locProps = prefs.getProperties(APPLICATION_ID);
-//
-//			String localeString = locProps.getProperty(LOCALE_KEY);
-//			if (localeString != null)
-//			{
-//				String[] locValues = localeString.split("_");
-//				if (locValues.length > 1)
-//					loc = new Locale(locValues[0], locValues[1]); // language, country
-//				else if (locValues.length == 1) loc = new Locale(locValues[0]); // just language
-//			}
-//		}
-//		catch (Exception e)
-//		{
-//		} // ignore and continue
+		try
+		{
+			String userId = SessionManager.getCurrentSessionUserId();
+			Preferences prefs = PreferencesService.getPreferences(userId);
+			ResourceProperties locProps = prefs.getProperties(APPLICATION_ID);
 
-//		// Second: find locale from user session, if available
-//		if (loc == null)
-//		{
-//			try
-//			{
-//				loc = (Locale) SessionManager.getCurrentSession().getAttribute("locale");
-//			}
-//			catch (NullPointerException e)
-//			{
-//			} // ignore and continue
-//		}
+			String localeString = locProps.getProperty(LOCALE_KEY);
+			if (localeString != null)
+			{
+				String[] locValues = localeString.split("_");
+				if (locValues.length > 1)
+					loc = new Locale(locValues[0], locValues[1]); // language, country
+				else if (locValues.length == 1) loc = new Locale(locValues[0]); // just language
+			}
+		}
+		catch (Exception e)
+		{
+		} // ignore and continue
+
+		// Second: find locale from user session, if available
+		if (loc == null)
+		{
+			try
+			{
+				loc = (Locale) SessionManager.getCurrentSession().getAttribute("locale");
+			}
+			catch (NullPointerException e)
+			{
+			} // ignore and continue
+		}
 
 		// Last: find system default locale
 		if (loc == null)
@@ -142,10 +181,10 @@ public class ResourceLoader
 	}
 
 	/**
-	 * Return string value for specified property in current locale specific ResourceBundle.
+	 * * Return string value for specified property in current locale specific ResourceBundle * *
 	 * 
 	 * @param key
-	 *        property key to look up in current ResourceBundle
+	 *        property key to look up in current ResourceBundle * *
 	 * @return String value for specified property key
 	 */
 	public String getString(String key)
@@ -183,6 +222,53 @@ public class ResourceLoader
 	}
 
 	/**
+	 * Access some named property values as an array of strings. The name is the base name. name + ".count" must be defined to be a positive integer - how many are defined. name + "." + i (1..count) must be defined to be the values.
+	 * 
+	 * @param key
+	 *        property key to look up in current ResourceBundle
+	 * @return The property value with this name, or the null if not found.
+	 */
+	public String[] getStrings(String key)
+	{
+		// get the count
+		int count = getInt(key + ".count", 0);
+		if (count > 0)
+		{
+			String[] rv = new String[count];
+			for (int i = 1; i <= count; i++)
+			{
+				String value = "";
+				try
+				{
+					value = getBundle().getString(key + "." + i);
+				}
+				catch (MissingResourceException e)
+				{
+					// ignore the exception
+				}
+				rv[i - 1] = value;
+			}
+			return rv;
+		}
+
+		return null;
+	}
+
+	public Set keySet()
+	{
+		return getBundleAsMap().keySet();
+	}
+
+	/**
+	 * * Clear bundles hashmap
+	 */
+	public void purgeCache()
+	{
+		this.bundles = new Hashtable();
+		M_log.debug("purge bundle cache");
+	}
+
+	/**
 	 * Set baseName
 	 * 
 	 * @param name
@@ -190,7 +276,13 @@ public class ResourceLoader
 	 */
 	public void setBaseName(String name)
 	{
+		M_log.debug("set baseName=" + name);
 		this.baseName = name;
+	}
+
+	public Collection values()
+	{
+		return getBundleAsMap().values();
 	}
 
 	/**
@@ -204,9 +296,22 @@ public class ResourceLoader
 		ResourceBundle bundle = (ResourceBundle) this.bundles.get(loc);
 		if (bundle == null)
 		{
-			if (M_log.isDebugEnabled()) M_log.debug("Load bundle name=" + this.baseName + ", locale=" + getLocale().toString());
+			M_log.debug("Load bundle name=" + this.baseName + ", locale=" + getLocale().toString());
 			bundle = loadBundle(loc);
 		}
+		return bundle;
+	}
+
+	protected Map getBundleAsMap()
+	{
+		Map bundle = new Hashtable();
+
+		for (Enumeration e = getBundle().getKeys(); e.hasMoreElements();)
+		{
+			Object key = e.nextElement();
+			bundle.put(key, getBundle().getObject((String) key));
+		}
+
 		return bundle;
 	}
 
@@ -233,7 +338,7 @@ public class ResourceLoader
 	}
 
 	/**
-	 * * Add loc (key) and bundle (value) to this.bundles hash * *
+	 * Add loc (key) and bundle (value) to this.bundles hash
 	 * 
 	 * @param loc
 	 *        Language/Region Locale *
@@ -244,5 +349,65 @@ public class ResourceLoader
 	{
 		if (bundle == null) throw new NullPointerException();
 		this.bundles.put(loc, bundle);
+	}
+}
+
+abstract class DummyMap implements Map
+{
+	public void clear()
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	public boolean containsKey(Object key)
+	{
+		return true;
+	}
+
+	public boolean containsValue(Object value)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	public Set entrySet()
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	public abstract Object get(Object key);
+
+	public boolean isEmpty()
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	public Set keySet()
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	public Object put(Object arg0, Object arg1)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	public void putAll(Map arg0)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	public Object remove(Object key)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	public int size()
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	public Collection values()
+	{
+		throw new UnsupportedOperationException();
 	}
 }
