@@ -2,10 +2,10 @@
 
 <project>
 	<pomVersion>3</pomVersion>
-	<extend>../../master/project.xml</extend>
-	<name>sakai-util</name>
+	<extend>../../../master/project.xml</extend>
+	<name>sakai-util-impl</name>
 	<groupId>sakaiproject</groupId>
-	<id>sakai-util</id>
+	<id>sakai-util-impl</id>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>University of Michigan</name>
@@ -14,7 +14,7 @@
 	<inceptionYear>2003</inceptionYear>
 
 	<properties>
-		<!-- build a jar, no deploy -->
+		<!-- build as a jar -->
 		<deploy.type>jar</deploy.type>
 	</properties>
 
@@ -26,22 +26,27 @@
 			<version>${sakai.version}</version>
 		</dependency>
 
+		<!-- Id Generator Jar -->
+		<dependency>
+			<groupId>commons-id</groupId>
+			<artifactId>commons-id</artifactId>
+			<version>0.1-dev</version>
+			<url>
+				http://brutus.apache.org/gump/public/jakarta-commons-sandbox/commons-id/
+			</url>
+		</dependency>
+
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
 			<version>1.0.4</version>
 		</dependency>
 
-		<dependency>
-			<groupId>servletapi</groupId>
-			<artifactId>servletapi</artifactId>
-			<version>2.4</version>
-		</dependency>
-
 	</dependencies>
 
 	<build>
 
+		<!-- java source -->
 		<sourceDirectory>src/java</sourceDirectory>
 
 	</build>

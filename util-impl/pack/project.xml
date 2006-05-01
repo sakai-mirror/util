@@ -2,10 +2,10 @@
 
 <project>
 	<pomVersion>3</pomVersion>
-	<extend>../../master/project.xml</extend>
-	<name>sakai-util-impl</name>
+	<extend>../../../master/project.xml</extend>
+	<name>sakai-util-pack</name>
 	<groupId>sakaiproject</groupId>
-	<id>sakai-util-impl</id>
+	<id>sakai-util-pack</id>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>University of Michigan</name>
@@ -14,19 +14,22 @@
 	<inceptionYear>2003</inceptionYear>
 
 	<properties>
-		<!-- build as a jar -->
-		<deploy.type>jar</deploy.type>
+		<!-- deploy as a components -->
+		<deploy.type>components</deploy.type>
 	</properties>
 
 	<dependencies>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-api</artifactId>
+			<artifactId>sakai-util-impl</artifactId>
 			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
 		</dependency>
 
-		<!-- Id Generator Jar -->
+		<!-- Id Generator Jar for sakai-id-impl -->
 		<dependency>
 			<groupId>commons-id</groupId>
 			<artifactId>commons-id</artifactId>
@@ -34,12 +37,9 @@
 			<url>
 				http://brutus.apache.org/gump/public/jakarta-commons-sandbox/commons-id/
 			</url>
-		</dependency>
-
-		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-			<version>1.0.4</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
 		</dependency>
 
 	</dependencies>

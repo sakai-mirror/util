@@ -2,10 +2,10 @@
 
 <project>
 	<pomVersion>3</pomVersion>
-	<extend>../../master/project.xml</extend>
-	<name>sakai-util-id-hbm</name>
+	<extend>../../../master/project.xml</extend>
+	<name>sakai-util</name>
 	<groupId>sakaiproject</groupId>
-	<id>sakai-util-id-hbm</id>
+	<id>sakai-util</id>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>University of Michigan</name>
@@ -14,10 +14,8 @@
 	<inceptionYear>2003</inceptionYear>
 
 	<properties>
-		<!-- build as a jar -->
+		<!-- build a jar, no deploy -->
 		<deploy.type>jar</deploy.type>
-		<!-- deploy to "shared", "common" or "server" : shared for hibernate/spring visibility -->
-		<deploy.target>shared</deploy.target>
 	</properties>
 
 	<dependencies>
@@ -29,9 +27,15 @@
 		</dependency>
 
 		<dependency>
-			<groupId>hibernate</groupId>
-			<artifactId>hibernate</artifactId>
-			<version>2.1.8</version>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.0.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>servletapi</groupId>
+			<artifactId>servletapi</artifactId>
+			<version>2.4</version>
 		</dependency>
 
 	</dependencies>
