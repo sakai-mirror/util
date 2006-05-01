@@ -29,18 +29,19 @@ import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.cover.PreferencesService;
 
 /**
  * <p>
  * BasicTimeService implements the Sakai TimeService
  * </p>
- * 
- * @author University of Michigan, Sakai Software Development Team
- * @version $Revision$
  */
 public class BasicTimeService implements TimeService
 {
@@ -128,10 +129,6 @@ public class BasicTimeService implements TimeService
 
 	protected String getUserLocalTzId()
 	{
-		return M_tz_local_default;
-		
-		/* TODO: how to do this? dependencies! -ggolden
-
 		// First check if we already cached this user's timezone
 		String userId = SessionManager.getCurrentSessionUserId();
 		if (userId == null) return M_tz_local_default;
@@ -141,7 +138,7 @@ public class BasicTimeService implements TimeService
 
 		// Otherwise, get the user's preferred time zone
 		Preferences prefs = PreferencesService.getPreferences(userId);
-		ResourceProperties tzProps = prefs.getProperties(TimeService.SERVICE_NAME);
+		ResourceProperties tzProps = prefs.getProperties(TimeService.APPLICATION_ID);
 
 		timeZone = tzProps.getProperty(TimeService.TIMEZONE_KEY);
 
@@ -149,7 +146,6 @@ public class BasicTimeService implements TimeService
 
 		M_userTzMap.put(userId, timeZone);
 		return timeZone;
-		*/
 	}
 
 	protected LocalTzFormat getLocalTzFormat(String timeZoneId)
