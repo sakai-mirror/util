@@ -507,4 +507,12 @@ public class MyTime implements Time
 
 		return b;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getDisplay()
+	{
+		return this.toStringLocalFull();
+	}
 }

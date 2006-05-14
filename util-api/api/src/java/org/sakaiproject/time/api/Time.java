@@ -188,4 +188,11 @@ public interface Time extends Cloneable, Comparable, Serializable
 	 * @return A TimeBreakdown object representing this time's value in GMT
 	 */
 	TimeBreakdown breakdownLocal();
+
+	/**
+	 * Access the time in a common human readable display format
+	 * 
+	 * @return The time string in human readable format.
+	 */
+	String getDisplay();
 }
