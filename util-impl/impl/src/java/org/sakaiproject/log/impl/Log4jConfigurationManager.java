@@ -78,7 +78,7 @@ public abstract class Log4jConfigurationManager implements LogConfigurationManag
 	 * @param value
 	 *        the setting (true of false) for enabled.
 	 */
-	public void setCommitAfterRead(String value)
+	public void setEnabled(String value)
 	{
 		m_enabled = new Boolean(value).booleanValue();
 	}
