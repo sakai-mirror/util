@@ -47,6 +47,7 @@
 					<key><value>org.apache.commons.digester.Digester</value></key>
 					<set>
 						<value>[NavigationRuleRule]{faces-config/navigation-rule} Merge</value>
+						<value>[ConverterRule]{faces-config/converter} Merge</value>
 					</set>
 				</entry>
 				<entry>
