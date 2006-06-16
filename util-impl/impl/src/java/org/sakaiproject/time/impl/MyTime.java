@@ -22,7 +22,7 @@
 package org.sakaiproject.time.impl;
 
 import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
@@ -167,8 +167,8 @@ public class MyTime implements Time
 	public String toStringLocal()
 	{
 		String s = null;
-		SimpleDateFormat fmtAl = ((BasicTimeService) TimeService.getInstance()).getLocalTzFormat(((BasicTimeService) TimeService
-				.getInstance()).getUserLocalTzId()).M_fmtAl;
+		DateFormat fmtAl = ((BasicTimeService) TimeService.getInstance()).getLocalTzFormat(((BasicTimeService) TimeService
+				.getInstance()).getUserTimezoneLocale()).M_fmtAl;
 		synchronized (fmtAl)
 		{
 			// format
@@ -202,8 +202,8 @@ public class MyTime implements Time
 	public String toStringLocalFull()
 	{
 		String s = null;
-		SimpleDateFormat fmtBl = ((BasicTimeService) TimeService.getInstance()).getLocalTzFormat(((BasicTimeService) TimeService
-				.getInstance()).getUserLocalTzId()).M_fmtBl;
+		DateFormat fmtBl = ((BasicTimeService) TimeService.getInstance()).getLocalTzFormat(((BasicTimeService) TimeService
+				.getInstance()).getUserTimezoneLocale()).M_fmtBl;
 		synchronized (fmtBl)
 		{
 			// format
@@ -222,8 +222,8 @@ public class MyTime implements Time
 	public String toStringLocalFullZ()
 	{
 		String s = null;
-		SimpleDateFormat fmtBlz = ((BasicTimeService) TimeService.getInstance()).getLocalTzFormat(((BasicTimeService) TimeService
-				.getInstance()).getUserLocalTzId()).M_fmtBlz;
+		DateFormat fmtBlz = ((BasicTimeService) TimeService.getInstance()).getLocalTzFormat(((BasicTimeService) TimeService
+				.getInstance()).getUserTimezoneLocale()).M_fmtBlz;
 		synchronized (fmtBlz)
 		{
 			// format
@@ -257,8 +257,8 @@ public class MyTime implements Time
 	public String toStringLocalShort()
 	{
 		String s = null;
-		SimpleDateFormat fmtCl = ((BasicTimeService) TimeService.getInstance()).getLocalTzFormat(((BasicTimeService) TimeService
-				.getInstance()).getUserLocalTzId()).M_fmtCl;
+		DateFormat fmtCl = ((BasicTimeService) TimeService.getInstance()).getLocalTzFormat(((BasicTimeService) TimeService
+				.getInstance()).getUserTimezoneLocale()).M_fmtCl;
 		synchronized (fmtCl)
 		{
 			// format
@@ -295,8 +295,8 @@ public class MyTime implements Time
 	public String toStringLocalTime()
 	{
 		String s = null;
-		SimpleDateFormat fmtCl = ((BasicTimeService) TimeService.getInstance()).getLocalTzFormat(((BasicTimeService) TimeService
-				.getInstance()).getUserLocalTzId()).M_fmtCl;
+		DateFormat fmtCl = ((BasicTimeService) TimeService.getInstance()).getLocalTzFormat(((BasicTimeService) TimeService
+				.getInstance()).getUserTimezoneLocale()).M_fmtCl;
 		synchronized (fmtCl)
 		{
 			// format
@@ -316,8 +316,8 @@ public class MyTime implements Time
 	{
 
 		String s = null;
-		SimpleDateFormat fmtClz = ((BasicTimeService) TimeService.getInstance()).getLocalTzFormat(((BasicTimeService) TimeService
-				.getInstance()).getUserLocalTzId()).M_fmtClz;
+		DateFormat fmtClz = ((BasicTimeService) TimeService.getInstance()).getLocalTzFormat(((BasicTimeService) TimeService
+				.getInstance()).getUserTimezoneLocale()).M_fmtClz;
 
 		synchronized (fmtClz)
 		{
@@ -333,8 +333,8 @@ public class MyTime implements Time
 	public String toStringLocalTime24()
 	{
 		String s = null;
-		SimpleDateFormat fmtFl = ((BasicTimeService) TimeService.getInstance()).getLocalTzFormat(((BasicTimeService) TimeService
-				.getInstance()).getUserLocalTzId()).M_fmtFl;
+		DateFormat fmtFl = ((BasicTimeService) TimeService.getInstance()).getLocalTzFormat(((BasicTimeService) TimeService
+				.getInstance()).getUserTimezoneLocale()).M_fmtFl;
 		synchronized (fmtFl)
 		{
 			// format
@@ -365,8 +365,8 @@ public class MyTime implements Time
 	public String toStringLocalDate()
 	{
 		String s = null;
-		SimpleDateFormat fmtDl = ((BasicTimeService) TimeService.getInstance()).getLocalTzFormat(((BasicTimeService) TimeService
-				.getInstance()).getUserLocalTzId()).M_fmtDl;
+		DateFormat fmtDl = ((BasicTimeService) TimeService.getInstance()).getLocalTzFormat(((BasicTimeService) TimeService
+				.getInstance()).getUserTimezoneLocale()).M_fmtDl;
 		synchronized (fmtDl)
 		{
 			// format
@@ -382,8 +382,8 @@ public class MyTime implements Time
 	public String toStringLocalShortDate()
 	{
 		String s = null;
-		SimpleDateFormat fmtD2 = ((BasicTimeService) TimeService.getInstance()).getLocalTzFormat(((BasicTimeService) TimeService
-				.getInstance()).getUserLocalTzId()).M_fmtD2;
+		DateFormat fmtD2 = ((BasicTimeService) TimeService.getInstance()).getLocalTzFormat(((BasicTimeService) TimeService
+				.getInstance()).getUserTimezoneLocale()).M_fmtD2;
 		synchronized (fmtD2)
 		{
 			// format
@@ -473,13 +473,14 @@ public class MyTime implements Time
 	 */
 	protected String fix(String s)
 	{
-		// the last two chars are either AM or PM, change to "am" or "pm"
+		// if the last two chars are either AM or PM, change to "am" or "pm"
 		int len = s.length();
-		if (s.charAt(len - 2) == 'P')
-		{
+		if (s.endsWith("PM"))
 			return s.substring(0, len - 2) + "pm";
-		}
-		return s.substring(0, len - 2) + "am";
+		else if (s.endsWith("AM"))
+			return s.substring(0, len - 2) + "am";
+      else
+         return s;
 	}
 
 	/**

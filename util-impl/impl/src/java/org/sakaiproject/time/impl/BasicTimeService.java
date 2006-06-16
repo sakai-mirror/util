@@ -21,14 +21,17 @@
 
 package org.sakaiproject.time.impl;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
+import java.util.Locale;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
@@ -59,26 +62,29 @@ public class BasicTimeService implements TimeService
 	/**
 	 * The formatter for our special GMT format(s)
 	 */
-	protected SimpleDateFormat M_fmtA = null;
+	protected DateFormat M_fmtA = null;
 
-	protected SimpleDateFormat M_fmtB = null;
+	protected DateFormat M_fmtB = null;
 
-	protected SimpleDateFormat M_fmtC = null;
+	protected DateFormat M_fmtC = null;
 
-	protected SimpleDateFormat M_fmtD = null;
+	protected DateFormat M_fmtD = null;
 
-	protected SimpleDateFormat M_fmtE = null;
+	protected DateFormat M_fmtE = null;
 
-	protected SimpleDateFormat M_fmtG = null;
+	protected DateFormat M_fmtG = null;
 
-	// Map of LocalTzFormat objects
-	private Hashtable M_localTzMap = new Hashtable();
+	// Map of Timezone/Locales to LocalTzFormat objects
+	private Hashtable M_localeTzMap = new Hashtable();
 
-	// Map of local user timezones
+	// Map of userIds to Timezone/Locales
 	private Hashtable M_userTzMap = new Hashtable();
 
-	// Default local time zone id
-	protected String M_tz_local_default = TimeZone.getDefault().getID();
+	// Default Timezone/Locale
+   protected String[] M_tz_locale_default = new String[] { TimeZone.getDefault().getID(), Locale.getDefault().toString() };
+   
+   // Used for fetching user's default language locale
+   ResourceLoader rl = new ResourceLoader();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies and their setter methods
@@ -104,12 +110,12 @@ public class BasicTimeService implements TimeService
 		M_GCal = getCalendar(M_tz, 0, 0, 0, 0, 0, 0, 0);
 
 		// Note: formatting for GMT time representations
-		M_fmtA = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-		M_fmtB = new SimpleDateFormat("MMM d, yyyy h:mm aa");
-		M_fmtC = new SimpleDateFormat("h:mm aa");
-		M_fmtD = new SimpleDateFormat("MMM d, yyyy");
-		M_fmtE = new SimpleDateFormat("yyyyMMddHHmmss");
-		M_fmtG = new SimpleDateFormat("yyyy/DDD/HH/"); // that's year, day of year, hour
+		M_fmtA = (DateFormat)(new SimpleDateFormat("yyyyMMddHHmmssSSS"));
+		M_fmtB = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
+		M_fmtC = DateFormat.getTimeInstance(DateFormat.SHORT);
+		M_fmtD = DateFormat.getDateInstance(DateFormat.MEDIUM);
+		M_fmtE = (DateFormat)(new SimpleDateFormat("yyyyMMddHHmmss"));
+		M_fmtG = (DateFormat)(new SimpleDateFormat("yyyy/DDD/HH/")); // that's year, day of year, hour
 
 		M_fmtA.setTimeZone(M_tz);
 		M_fmtB.setTimeZone(M_tz);
@@ -127,35 +133,44 @@ public class BasicTimeService implements TimeService
 		M_log.info("destroy()");
 	}
 
-	protected String getUserLocalTzId()
+   /** Return string with user's prefered timezone _and_ prefered locale
+    ** (dates are formatted according to the locale)
+    **/
+	protected String[] getUserTimezoneLocale()
 	{
-		// First check if we already cached this user's timezone
+		// Check if we already cached this user's timezone
 		String userId = SessionManager.getCurrentSessionUserId();
-		if (userId == null) return M_tz_local_default;
+		if (userId == null) return M_tz_locale_default;
 
-		String timeZone = (String) M_userTzMap.get(userId);
-		if (timeZone != null) return timeZone;
+		String[] timeZoneLocale = (String[]) M_userTzMap.get(userId);
+		if (timeZoneLocale != null) return timeZoneLocale;
 
 		// Otherwise, get the user's preferred time zone
 		Preferences prefs = PreferencesService.getPreferences(userId);
 		ResourceProperties tzProps = prefs.getProperties(TimeService.APPLICATION_ID);
+		String timeZone = tzProps.getProperty(TimeService.TIMEZONE_KEY);
 
-		timeZone = tzProps.getProperty(TimeService.TIMEZONE_KEY);
+		if (timeZone == null || timeZone.equals("")) 
+         timeZone = TimeZone.getDefault().getID();
 
-		if (timeZone == null || timeZone.equals("")) timeZone = M_tz_local_default;
+      // Now, get user's prefered locale
+      String localeId = rl.getLocale().toString();
 
-		M_userTzMap.put(userId, timeZone);
-		return timeZone;
+      timeZoneLocale = new String[] {timeZone, localeId};
+      
+		M_userTzMap.put(userId, timeZoneLocale);
+      
+		return timeZoneLocale;
 	}
 
-	protected LocalTzFormat getLocalTzFormat(String timeZoneId)
+	protected LocalTzFormat getLocalTzFormat(String[] timeZoneLocale)
 	{
-		LocalTzFormat tzFormat = (LocalTzFormat) M_localTzMap.get(timeZoneId);
+		LocalTzFormat tzFormat = (LocalTzFormat) M_localeTzMap.get(timeZoneLocale);
 
 		if (tzFormat == null)
 		{
-			tzFormat = new LocalTzFormat(timeZoneId);
-			M_localTzMap.put(timeZoneId, tzFormat);
+			tzFormat = new LocalTzFormat(timeZoneLocale[0], timeZoneLocale[1]);
+			M_localeTzMap.put(timeZoneLocale, tzFormat);
 		}
 
 		return tzFormat;
@@ -225,7 +240,7 @@ public class BasicTimeService implements TimeService
 	 */
 	public Time newTimeLocal(int year, int month, int day, int hour, int minute, int second, int millisecond)
 	{
-		TimeZone tz_local = getLocalTzFormat(getUserLocalTzId()).M_tz_local;
+		TimeZone tz_local = getLocalTzFormat(getUserTimezoneLocale()).M_tz_local;
 		return new MyTime(tz_local, year, month, day, hour, minute, second, millisecond);
 	}
 
@@ -234,7 +249,7 @@ public class BasicTimeService implements TimeService
 	 */
 	public Time newTimeLocal(TimeBreakdown breakdown)
 	{
-		TimeZone tz_local = getLocalTzFormat(getUserLocalTzId()).M_tz_local;
+		TimeZone tz_local = getLocalTzFormat(getUserTimezoneLocale()).M_tz_local;
 		return new MyTime(tz_local, breakdown);
 	}
 
@@ -291,7 +306,7 @@ public class BasicTimeService implements TimeService
 	 */
 	public TimeZone getLocalTimeZone()
 	{
-		return getLocalTzFormat(getUserLocalTzId()).M_tz_local;
+		return getLocalTzFormat(getUserTimezoneLocale()).M_tz_local;
 	}
 
 	/**
@@ -337,51 +352,79 @@ public class BasicTimeService implements TimeService
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
-	 * LocalTzFormat -- maintains a local timezone and SimpleDateFormats
+	 * LocalTzFormat -- maintains a local timezone, locale and DateFormats
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	protected class LocalTzFormat
 	{
 		// The time zone for our local times
 		public TimeZone M_tz_local = null;
+      
+      // The Locale for our local date/time formatting
+      public Locale M_locale = null;
 
 		// a calendar to clone for GMT time construction
 		public GregorianCalendar M_GCall = null;
 
 		// The formatter for our special local timezone format(s)
-		public SimpleDateFormat M_fmtAl = null;
+		public DateFormat M_fmtAl = null;
 
-		public SimpleDateFormat M_fmtBl = null;
+		public DateFormat M_fmtBl = null;
 
-		public SimpleDateFormat M_fmtBlz = null;
+		public DateFormat M_fmtBlz = null;
 
-		public SimpleDateFormat M_fmtCl = null;
+		public DateFormat M_fmtCl = null;
 
-		public SimpleDateFormat M_fmtClz = null;
+		public DateFormat M_fmtClz = null;
 
-		public SimpleDateFormat M_fmtDl = null;
+		public DateFormat M_fmtDl = null;
 
-		public SimpleDateFormat M_fmtD2 = null;
+		public DateFormat M_fmtD2 = null;
 
-		public SimpleDateFormat M_fmtFl = null;
+		public DateFormat M_fmtFl = null;
 
 		private LocalTzFormat()
 		{
 		}; // disable default constructor
 
-		public LocalTzFormat(String timeZoneId)
+      public LocalTzFormat(String timeZoneId, String localeId )
 		{
 			M_tz_local = TimeZone.getTimeZone(timeZoneId);
+         
+         Locale M_locale = null;
+         String langLoc[] = localeId.split("_");
+         if ( langLoc.length >= 2 )
+            M_locale = new Locale(langLoc[0], langLoc[1]);
+         else
+            M_locale = new Locale(langLoc[0]);
 
-			M_fmtAl = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-			M_fmtBl = new SimpleDateFormat("MMM d, yyyy h:mm aa");
-			M_fmtBlz = new SimpleDateFormat("MMM d, yyyy h:mm aa z");
-			M_fmtCl = new SimpleDateFormat("h:mm aa");
-			M_fmtClz = new SimpleDateFormat("h:mm aa z");
-			M_fmtDl = new SimpleDateFormat("MMM d, yyyy");
-			M_fmtD2 = new SimpleDateFormat("MM/dd/yy");
-			M_fmtFl = new SimpleDateFormat("HH:mm:ss");
+			M_fmtAl = (DateFormat)(new SimpleDateFormat("yyyyMMddHHmmssSSS"));
+			M_fmtBl = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, M_locale);
+			M_fmtBlz = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.LONG, M_locale);
+			M_fmtCl = DateFormat.getTimeInstance(DateFormat.SHORT, M_locale);
+			M_fmtClz = DateFormat.getTimeInstance(DateFormat.LONG, M_locale);
+			M_fmtDl = DateFormat.getDateInstance(DateFormat.MEDIUM, M_locale);
+			M_fmtD2 = DateFormat.getDateInstance(DateFormat.SHORT, M_locale);
+			M_fmtFl = (DateFormat)(new SimpleDateFormat("HH:mm:ss"));
 
+         // Strip the seconds from the Blz and Clz (default) formats         
+         try
+         {
+            SimpleDateFormat sdf = ((SimpleDateFormat)M_fmtBlz);
+            String pattern = sdf.toLocalizedPattern();
+            pattern = pattern.replaceAll(":ss","");
+            sdf.applyLocalizedPattern( pattern );
+            
+            sdf = ((SimpleDateFormat)M_fmtClz);
+            pattern = sdf.toLocalizedPattern();
+            pattern = pattern.replaceAll(":ss","");
+            sdf.applyLocalizedPattern( pattern );
+         }
+         catch (ClassCastException e)
+         {
+            // ignore -- not all locales support this
+         }
+         
 			M_fmtAl.setTimeZone(M_tz_local);
 			M_fmtBl.setTimeZone(M_tz_local);
 			M_fmtBlz.setTimeZone(M_tz_local);
