@@ -92,10 +92,17 @@ public class ResourceLoader extends DummyMap implements Map
 		return getString(key.toString());
 	}
 
+   /**
+    ** Return formatted message based on locale-specific pattern
+    **
+    ** @param key maps to locale-specific pattern in properties file
+    ** @param args parameters to format and insert according to above pattern
+    ** @return  formatted message
+    **/
 	public Object getFormattedMessage(Object key, Object[] args)
 	{
 		String pattern = (String) get(key);
-		return MessageFormat.format(pattern, args);
+		return (new MessageFormat(pattern, getLocale())).format(args, new StringBuffer(), null).toString();
 	}
 
 	/**
