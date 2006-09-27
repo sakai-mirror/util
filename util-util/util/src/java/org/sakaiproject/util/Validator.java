@@ -682,6 +682,7 @@ public class Validator
 		if (lType.startsWith("text/")) return true;
 		if (lType.startsWith("image/")) return true;
 		if (lType.equals("application/pdf")) return true;
+		if (lType.equals("application/x-osp")) return true;
 		// checks for VRML file MIME types:x-world/x-vrml, model/vrml, application/x-blaxxunCC3D, application/x-blaxxunCC3Dpro, application/x-CC3D
 		// need to check for any other MIME types which can be opened by browser plug-ins? %%%zqian
 		if (lType.indexOf("vrml") != -1 || lType.indexOf("CC3D") != -1) return true;
