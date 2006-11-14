@@ -34,6 +34,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.i18n.InternationalizedMessages;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.cover.PreferencesService;
@@ -43,14 +44,8 @@ import org.sakaiproject.user.cover.PreferencesService;
  * 
  * @author Sugiura, Tatsuki (University of Nagoya)
  */
-public class ResourceLoader extends DummyMap implements Map
+public class ResourceLoader extends DummyMap implements InternationalizedMessages
 {
-	/** The type string for this "application": should not change over time as it may be stored in various parts of persistent entities. */
-	public static final String APPLICATION_ID = "sakai:resourceloader";
-
-	/** Preferences key for user's regional language locale */
-	public static final String LOCALE_KEY = "locale";
-
 	protected static Log M_log = LogFactory.getLog(ResourceLoader.class);
 
 	protected String baseName = null;
@@ -99,7 +94,7 @@ public class ResourceLoader extends DummyMap implements Map
     ** @param args parameters to format and insert according to above pattern
     ** @return  formatted message
     **/
-	public Object getFormattedMessage(Object key, Object[] args)
+	public String getFormattedMessage(String key, Object[] args)
 	{
 		String pattern = (String) get(key);
 		return (new MessageFormat(pattern, getLocale())).format(args, new StringBuffer(), null).toString();
