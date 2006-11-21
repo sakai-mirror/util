@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/content/trunk/content-api/api/src/java/org/sakaiproject/content/api/ContentHostingService.java $
- * $Id: ContentHostingService.java 18222 2006-11-17 22:39:14Z jimeng@umich.edu $
+ * $HeadURL: $
+ * $Id: $
  ***********************************************************************************
  *
  * Copyright (c) 2006 The Sakai Foundation.
