@@ -262,6 +262,34 @@ public class StringUtil
 	}
 
 	/**
+	 * Compare two strings for differences, either may be null, ignore case if specified
+	 * 
+	 * @param a
+	 *        One String.
+	 * @param b
+	 *        The other String.
+	 * @param ignoreCase
+	 *        if true, we will do the compare case insensitive.
+	 * @return true if the strings are different, false if they are the same.
+	 */
+	public static boolean different(String a, String b, boolean ignoreCase)
+	{
+		// if both null, they are the same
+		if ((a == null) && (b == null)) return false;
+
+		// if either are null (they both are not), they are different
+		if ((a == null) || (b == null)) return true;
+
+		// now we know neither are null, so compare
+		if (ignoreCase)
+		{
+			return (!a.equalsIgnoreCase(b));
+		}
+
+		return (!a.equals(b));
+	}
+
+	/**
 	 * Compare two String[] for differences, either may be null
 	 * 
 	 * @param a
@@ -365,6 +393,26 @@ public class StringUtil
 	}
 
 	/**
+	 * Determine if a String is contained in a String[]
+	 * 
+	 * @param stringCollection
+	 *        The String[] to scan
+	 * @param value
+	 *        The value to look for
+	 * @return true if the string was found
+	 */
+	public static boolean contains(String[] stringCollection, String value)
+	{
+		if (stringCollection == null || value == null) return false;
+		if ((stringCollection.length == 0) || (value.length() == 0)) return false;
+		for (String s : stringCollection)
+		{
+			if (value.equals(s)) return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Determine if a String is contained in a String Collection, ignoring case
 	 * 
 	 * @param stringCollection
@@ -382,6 +430,55 @@ public class StringUtil
 			Object o = i.next();
 			if (!(o instanceof String)) continue;
 			if (value.equalsIgnoreCase((String) o)) return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Determine if a String is contained in a String [], ignoring case
+	 * 
+	 * @param stringCollection
+	 *        The String[] to scan
+	 * @param value
+	 *        The value to look for
+	 * @return true if the string was found
+	 */
+	public static boolean containsIgnoreCase(String[] stringCollection, String value)
+	{
+		if (stringCollection == null || value == null) return false;
+		if ((stringCollection.length == 0) || (value.length() == 0)) return false;
+		for (String s : stringCollection)
+		{
+			if (value.equalsIgnoreCase(s)) return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Determine if a String is contained in a String [], ignoring case or not as specified
+	 * 
+	 * @param stringCollection
+	 *        The String[] to scan
+	 * @param value
+	 *        The value to look for
+	 * @param ignoreCase
+	 *        if true, we will do the compare case insensitive.
+	 * @return true if the string was found
+	 */
+	public static boolean contains(String[] stringCollection, String value, boolean ignoreCase)
+	{
+		if (stringCollection == null || value == null) return false;
+		if ((stringCollection.length == 0) || (value.length() == 0)) return false;
+		for (String s : stringCollection)
+		{
+			if (ignoreCase)
+			{
+				if (value.equalsIgnoreCase(s)) return true;
+			}
+			else
+			{
+				if (value.equals(s)) return true;
+			}
 		}
 		return false;
 	}
