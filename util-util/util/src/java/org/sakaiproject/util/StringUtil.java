@@ -100,7 +100,7 @@ public class StringUtil
 	{
 		if (parts == null) return null;
 		if ((index < 0) || (index >= parts.length)) return null;
-		if (index+length >= parts.length) return null;
+		if (index+length > parts.length) return null;
 
 		StringBuffer buf = new StringBuffer();
 		for (int i = index; i < index+length; i++)
