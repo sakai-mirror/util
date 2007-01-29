@@ -49,13 +49,14 @@ public class FormattedText
         private static String[] M_archivalGoodTags = {"a", "abbr", "acronym", "address", "b", "big", "blockquote", "br", "center", "cite",
 			"code", "dd", "del", "dir", "div", "dl", "dt", "em", "font", "hr", "h1", "h2", "h3", "h4", "h5", "h6", "i", "ins",
 			"kbd", "li", "marquee", "menu", "nobr", "ol", "p", "pre", "q", "rt", "ruby", "rbc", "rb", "rtc", "rp", "s", "samp",
-			"small", "span", "strike", "strong", "sub", "sup", "tt", "u", "ul", "var", "xmp" };
+			"small", "span", "strike", "strong", "sub", "sup", "tt", "u", "ul", "var", "xmp", "table", "tr", "td", "th", "tbody", 
+			"caption", "thead", "tfoot", "colgroup", "col"};
 
         private static String[] M_richGoodTags = {"a", "abbr", "acronym", "address", "b", "big", "blockquote", "br", "center", "cite", "code", 
                         "dd", "del", "dir", "div", "dl", "dt", "em", "font", "hr", "h1", "h2", "h3", "h4", "h5", "h6", "i", "ins",
                         "kbd", "li", "marquee", "menu", "nobr", "noembed", "ol", "p", "pre", "q", "rt", "ruby", "rbc", "rb", "rtc", "rp",
-                        "s", "samp", "small", "span", "strike", "strong", "sub", "sup", "tt", "u", "ul", "var", "xmp", 
-                        "img", "embed", "object" };
+                        "s", "samp", "small", "span", "strike", "strong", "sub", "sup", "tt", "u", "ul", "var", "xmp", "img", "embed",
+                        "object", "table", "tr", "td", "th", "tbody", "caption", "thead", "tfoot", "colgroup", "col"};
 
 
 
