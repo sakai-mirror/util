@@ -124,7 +124,7 @@ public class FormattedText
 			// matches the start of the particular good tag "<" followed by whitespace,
 			// followed by the tag name, followed by anything, followed by ">", case insensitive,
 			// allowed to match over multiple lines.
-			M_goodTagsPatterns[i] = Pattern.compile(".*<\\s*" + M_goodTags[i] + ".*>.*", Pattern.CASE_INSENSITIVE
+			M_goodTagsPatterns[i] = Pattern.compile(".*<\\s*" + M_goodTags[i] + "(\\s+.*>|>).*", Pattern.CASE_INSENSITIVE
 					| Pattern.UNICODE_CASE | Pattern.DOTALL);
 			M_goodCloseTagsPatterns[i] = Pattern.compile("<\\s*/\\s*" + M_goodTags[i] + "(\\s.*>|>)", Pattern.CASE_INSENSITIVE
 					| Pattern.UNICODE_CASE | Pattern.DOTALL);
