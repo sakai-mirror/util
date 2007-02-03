@@ -24,6 +24,7 @@ package org.sakaiproject.time.impl;
 import java.text.ParsePosition;
 import java.text.DateFormat;
 import java.util.Date;
+import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
@@ -391,6 +392,19 @@ public class MyTime implements Time
 		}
 
 		return s;
+	}
+
+
+    	public static SimpleDateFormat RFC822DATEFORMAT
+        	// = new SimpleDateFormat("EEE', 'dd' 'MMM' 'yyyy' 'HH:mm:ss' 'Z", Locale.US);
+        	= new SimpleDateFormat("EEE', 'dd' 'MMM' 'yyyy' 'HH:mm:ss' 'Z");
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String toStringRFC822Local()
+	{
+        	return RFC822DATEFORMAT.format(new Date(getTime()));
 	}
 
 	/**

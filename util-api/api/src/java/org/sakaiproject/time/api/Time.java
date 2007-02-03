@@ -129,6 +129,16 @@ public interface Time extends Cloneable, Comparable, Serializable
 	String toStringLocalShortDate();
 
 	/**
+	 * Format as a string, RFC822 format: 
+	 *   Sun, 14 Aug 2005 16:13:03 UTC.
+         *
+	 * http://www.w3.org/Protocols/rfc822/
+	 * 
+	 * @return Time in string format per RFC822.
+	 */
+	String toStringRFC822Local();
+
+	/**
 	 * Format as a file path based on the date and time.
 	 * 
 	 * @return Time is string format.
