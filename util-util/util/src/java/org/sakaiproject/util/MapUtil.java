@@ -25,6 +25,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.sakaiproject.util.Web;
+
 /**
  * <p>
  * MapUtil collects together some string utility classes.
@@ -81,5 +83,33 @@ public class MapUtil
 	    destMap.put(destKey,o);
 	    // System.out.println("dest["+destKey+"]=source["+sourceKey+"] = "+ o);
 	    return true;
+	}
+
+	/**
+	 * Assigns a value from one map to another - applying an HMTL filter to the value
+         *
+         * destMap[destKey] = sourceMap[sourceKey];
+	 * 
+	 * @param destMap
+	 *        The Map to add the key/value pair to.
+	 * @param destKey
+	 *        The key to use in the destination map.
+	 * @param sourceMap
+	 *        The Map to add the key/value pairs from
+	 * @param sourceKey
+	 *        The key to use from the source  map.
+	 * @return true if there were keys copied
+	 */
+	public static boolean copyHtml(Map destMap, String destKey, Map sourceMap, String sourceKey)
+	{
+	    if ( destMap == null || sourceMap == null || sourceMap.isEmpty() ) return false;
+            try {
+	    	String s = (String) sourceMap.get(sourceKey);
+	    	if ( s == null ) return false;
+	    	destMap.put(destKey,Web.escapeHtml(s));
+	    	return true;
+	    } catch (Throwable t) { // Not a string
+		return false;
+	    }
 	}
 }
