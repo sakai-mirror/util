@@ -25,10 +25,10 @@ import java.util.Iterator;
 import java.util.Stack;
 
 /**
- * StackIterator is both a java.util.Iterator and a java.util.Stack
+ * StackIterator is both a java.util.Iterator and a stack (though not a java.util.Collection)
  *
  */
-public class StackIterator<E> extends Stack<E> implements Iterator<E>
+public class StackIterator<E> implements Iterator<E>
 {
 	protected Stack<E> stack;
 
