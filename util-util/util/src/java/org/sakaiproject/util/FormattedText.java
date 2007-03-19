@@ -58,8 +58,15 @@ public class FormattedText
                         "s", "samp", "small", "span", "strike", "strong", "sub", "sup", "tt", "u", "ul", "var", "xmp", "img", "embed",
                         "object", "table", "tr", "td", "th", "tbody", "caption", "thead", "tfoot", "colgroup", "col"};
 
+        private static String[] M_goodAttributes = {"abbr", "accept", "accesskey", "align", "alink", "alt", "axis", "background",
+        	"bgcolor", "border", "cellpadding", "cellspacing", "char", "charoff", "charset", "checked", "cite", "class", "classid",
+        	"clear", "color", "cols", "colspan", "compact", "content", "coords", "datetime", "dir", "disabled", "enctype", "face",
+        	"for", "header", "height", "href", "hreflang", "hspace", "id", "ismap", "label", "lang", "longdesc", "maxlength", "multiple",
+        	"name", "noshade", "nowrap", "profile", "readonly", "rel", "rev", "rows", "rowspan", "rules", "scope", "selected", "shape",
+        	"size", "span", "src", "style", "summary", "tabindex", "target", "text", "title", "type", "usemap", "valign", "value", "vlink",
+        	"vspace", "width"};
 
-
+        private static String[] M_evilValues = {"javascript:", "behavior:", "vbscript:", "mocha:", "livescript:", "expression"};
 
 
 	/**
@@ -89,6 +96,12 @@ public class FormattedText
 	/** An array of regular expression pattern-matchers, that will match the tags given in M_goodCloseTags */
 	private static Pattern[] M_goodCloseTagsPatterns;
 
+	/** An array of regular expression pattern-matchers, that will match the attributes given in M_goodAttributeTags */
+	private static Pattern[] M_goodAttributePatterns;
+	
+	/** An array of regular expression pattern-matchers, that will match the attributes given in M_evilValues */
+	private static Pattern[] M_evilValuePatterns;
+	
 	static
 	{
 		init();
@@ -124,22 +137,46 @@ public class FormattedText
 			// matches the start of the particular good tag "<" followed by whitespace,
 			// followed by the tag name, followed by anything, followed by ">", case insensitive,
 			// allowed to match over multiple lines.
-			M_goodTagsPatterns[i] = Pattern.compile(".*<\\s*" + M_goodTags[i] + "(\\s+.*>|>).*", Pattern.CASE_INSENSITIVE
+			M_goodTagsPatterns[i] = Pattern.compile(".*<\\s*" + M_goodTags[i] + "(\\s+.*>|>|/>).*", Pattern.CASE_INSENSITIVE
 					| Pattern.UNICODE_CASE | Pattern.DOTALL);
 			M_goodCloseTagsPatterns[i] = Pattern.compile("<\\s*/\\s*" + M_goodTags[i] + "(\\s.*>|>)", Pattern.CASE_INSENSITIVE
 					| Pattern.UNICODE_CASE | Pattern.DOTALL);
 		}
-	}
+		
+		M_goodAttributePatterns = new Pattern[M_goodAttributes.length];
+		for (int i = 0; i < M_goodAttributes.length; i++) 
+		{
+			M_goodAttributePatterns[i] = Pattern.compile("\\s+" + M_goodAttributes[i] + 
+					"(\\s*=\\s*(?:\".*?\"|'.*?'|[^'\">\\s]+))", 
+					Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.DOTALL);
+		}
+		
+		M_evilValuePatterns = new Pattern[M_evilValues.length];
+		String pads = "(\\s)*?(?:/\\*.*\\*/|<!--.*-->|\0|)*?(\\s)*?";
+		for (int i = 0; i < M_evilValues.length; i++)
+		{
+			String complexPattern = "\\s*";
+			String value = M_evilValues[i];
+			for (int j = 0; j < value.length(); j++)
+			{
+				complexPattern += value.charAt(j) + pads;
+			}
 
+			M_evilValuePatterns[i] = Pattern.compile(complexPattern, Pattern.CASE_INSENSITIVE | 
+					Pattern.UNICODE_CASE | Pattern.DOTALL);
+		}
+		
+	}
+	
 	/** Matches HTML-style line breaks like &lt;br&gt; */
 	private static Pattern M_patternTagBr = Pattern.compile("<\\s*br\\s+?[^<>]*?>\\s*", Pattern.CASE_INSENSITIVE);
-
-	/** Matches HTML-style line breaks like &lt;br/&gt; */
-	private static Pattern M_patternTagBrSlash = Pattern.compile("<\\s*br\\s*/(\\s*>|>)", Pattern.CASE_INSENSITIVE);
 
 	/** Matches any HTML-style tag, like &lt;anything&gt; */
 	private static Pattern M_patternTag = Pattern.compile("<.*?>", Pattern.DOTALL);
 
+	/** Matches the 3 main pieces of any HTML tag */
+	private static Pattern M_patternTagPieces = Pattern.compile("((?:<|</)\\w+)(\\s[^>]*?)?(/>|>)", Pattern.DOTALL);
+	
 	/** Matches newlines */
 	private static Pattern M_patternNewline = Pattern.compile("\\n");
 
@@ -224,20 +261,7 @@ public class FormattedText
 
 		if (checkForEvilTags)
 		{
-			// don't allow HTML comments
-			// if (M_patternTagComment.matcher(strFromBrowser).matches())
-			// {
-			// errorMessages.append(MSG_NO_HTML_COMMENTS+"\n");
-			// }
-
-			// don't allow evil tags
-			for (int i = 0; i < M_evilTags.length; i++)
-			{
-				if (M_evilTagsPatterns[i].matcher(strFromBrowser).matches())
-				{
-					errorMessages.append("The HTML tag '<" + M_evilTags[i] + ">' is not allowed in formatted text.\n");
-				}
-			}
+			val = processHtml(strFromBrowser, errorMessages);
 		}
 
 		// deal with hardcoded empty space character from Firefox 1.5
@@ -586,15 +610,19 @@ public class FormattedText
 			M_log.warn("FormattedText.processEscapedHtml unEscapeHtml(Html):", e);
 		}
 
+		return processHtml(Html, new StringBuffer());
+	}
+
+	private static String processHtml(final String source, StringBuffer errorMessages)
+	{
 		// normalize all variants of the "<br>" HTML tag to be "<br />\n"
 		// TODO call a method to do this in each process routine
-		Html = M_patternTagBr.matcher(Html).replaceAll("<br />\n");
+		String Html = M_patternTagBr.matcher(source).replaceAll("<br />\n");
 
 		// process text and tags
 		StringBuffer buf = new StringBuffer();
 		if (Html != null)
 		{
-			// TODO LAZY ALLOCATION
 			try
 			{
 				int start = 0;
@@ -607,47 +635,11 @@ public class FormattedText
 				// if there are tags, make sure they are safe
 				while (m.find())
 				{
-					boolean escape = true;
-
 					// append text that isn't part of a tag
 					if (m.start() > start) buf.append(Html.substring(start, m.start()));
 					start = m.end();
 
-					// if it's a good open tag, don't escape the HTML
-					for (int i = 0; i < M_goodTags.length; i++)
-					{
-						if (M_goodTagsPatterns[i].matcher(m.group()).matches())
-						{
-							if (M_patternAnchorTag.matcher(m.group()).matches()
-									&& !M_patternCloseAnchorTag.matcher(m.group()).matches())
-							{
-								// if it's an anchor tag, sanitize it
-								buf.append(processAnchor(m.group()));
-								escape = false;
-							}
-							else
-							{
-								// otherwise just include it
-								buf.append(m.group());
-								escape = false;
-							}
-						}
-						else if (M_goodCloseTagsPatterns[i].matcher(m.group()).matches())
-						{
-							// if it's a good close tag, don't escape the HTML
-							buf.append(m.group());
-							escape = false;
-						}
-					}
-					if (M_patternTagBrSlash.matcher(m.group()).matches())
-					{
-						// or if it's a good br tag, don't escape HTML characters
-						buf.append(m.group());
-						escape = false;
-					}
-
-					// otherwise escape tag
-					if (escape) buf.append((String) escapeHtml(m.group(), false));
+					buf.append(checkTag(m.group(), errorMessages));
 				}
 
 				// tail
@@ -659,6 +651,126 @@ public class FormattedText
 			}
 		}
 		return new String(buf.toString());
+	}
+
+	private static String checkTag (final String tag, StringBuffer errorMessages)
+	{
+		StringBuffer buf = new StringBuffer();
+		boolean escape = true;
+
+		// if it's a good open tag, don't escape the HTML
+		for (int i = 0; i < M_goodTags.length; i++)
+		{
+			if (M_goodTagsPatterns[i].matcher(tag).matches())
+			{
+				if (M_patternAnchorTag.matcher(tag).matches()
+						&& !M_patternCloseAnchorTag.matcher(tag).matches())
+				{
+					// if it's an anchor tag, sanitize it
+					buf.append(checkAttributes(processAnchor(tag), errorMessages));
+					escape = false;
+				}
+				else
+				{
+					// otherwise just include it
+					buf.append(checkAttributes(tag, errorMessages));
+					escape = false;
+				}
+			}
+			else if (M_goodCloseTagsPatterns[i].matcher(tag).matches())
+			{
+				// if it's a good close tag, don't escape the HTML
+				buf.append(checkAttributes(tag, errorMessages));
+				escape = false;
+			}
+		}
+
+		// otherwise escape tag
+		if (escape)
+		{
+			buf.append((String) escapeHtml(tag, false));
+
+			Matcher fullTag = M_patternTagPieces.matcher(tag);
+			if (fullTag.matches() && fullTag.groupCount() > 2)
+			{
+				errorMessages.append("The HTML tag '" + fullTag.group(1)
+						+ fullTag.group(fullTag.groupCount())
+						+ "' is not allowed in formatted text.\n");
+			}
+		}
+
+		return buf.toString();
+	}
+	
+	private static String checkAttributes(final String tag, StringBuffer errorMessages)
+	{
+		Matcher fullTag = M_patternTagPieces.matcher(tag);
+		String close = "";
+		StringBuffer buf = new StringBuffer();
+		String leftOvers = "";
+
+		if (fullTag.matches() && fullTag.groupCount() > 2)
+		{
+			leftOvers = fullTag.group(2);
+			buf.append(fullTag.group(1));
+			close = fullTag.group(fullTag.groupCount());
+		}
+		else
+		{
+			if (M_log.isDebugEnabled()) M_log.debug("Could not parse " + tag);
+			return "";
+		}
+
+		Matcher matcher;
+		for (int i = 0; i < M_goodAttributePatterns.length; i++)
+		{
+			matcher = M_goodAttributePatterns[i].matcher(tag);
+			if (matcher.find())
+			{
+				for (int j = 0; j < matcher.groupCount(); j++)
+				{
+					if (checkValue(matcher.group(j) + " ", errorMessages))
+					{
+						buf.append(matcher.group(j) + " ");
+					
+						try {
+							leftOvers = leftOvers.replace(matcher.group(j), "");
+						}
+						catch (Exception e)
+						{
+							M_log.warn(matcher.group(j));
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+		}
+
+		if (leftOvers != null && leftOvers.trim().length() > 1)
+		{
+			errorMessages.append("The HTML attribute pattern '" + leftOvers + "' is not allowed\n");
+		}
+
+		buf.append(close);
+		return buf.toString();
+	}
+
+	private static boolean checkValue(final String value, StringBuffer errorMessages)
+	{
+		boolean pass = true;
+
+		Matcher matcher;
+		for (int i = 0; i < M_evilValuePatterns.length; i++)
+		{
+			matcher = M_evilValuePatterns[i].matcher(value);
+        	
+			if (matcher.find())
+			{
+				pass = false;
+				//errorMessages.append("The attribute value '" + value + "' is not allowed\n");
+			}
+		}
+		return pass;
 	}
 
 	/**
