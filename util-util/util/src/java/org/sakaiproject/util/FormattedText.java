@@ -197,7 +197,7 @@ public class FormattedText
 			Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
 	/** Matches href attribute */
-	private static Pattern M_patternHref = Pattern.compile("href\\s*=\\s*\"?\\s*[\\S]+(\\s|>)", Pattern.CASE_INSENSITIVE
+	private static Pattern M_patternHref = Pattern.compile("href\\s*=\\s*\"?\\s*[\\S ]+(\\s|>)", Pattern.CASE_INSENSITIVE
 			| Pattern.DOTALL);
 
 	/**
