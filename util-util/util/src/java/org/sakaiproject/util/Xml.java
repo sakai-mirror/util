@@ -35,17 +35,22 @@ import java.util.Stack;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
-import com.sun.org.apache.xml.internal.serialize.OutputFormat;
-import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+
 
 /**
  * <p>
@@ -192,12 +197,15 @@ public class Xml
 	{
 		try
 		{
-			// create a file that uses the UTF-8 encoding
 			OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(fileName), "UTF-8");
-
-			// Note: using xerces %%% is there a org.w3c.dom way to do this?
-			XMLSerializer s = new XMLSerializer(out, new OutputFormat("xml", "UTF-8", true));
-			s.serialize(doc);
+			
+		    TransformerFactory xformFactory 
+		       = TransformerFactory.newInstance();
+		    Transformer idTransform = xformFactory.newTransformer();
+		    Source input = new DOMSource(doc);
+		    StreamResult output = new StreamResult(out);
+		    idTransform.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+		    idTransform.transform(input, output);			
 			out.close();
 		}
 		catch (Exception any)
@@ -219,10 +227,13 @@ public class Xml
 		try
 		{
 			StringWriter sw = new StringWriter();
-			// Note: using xerces %%% is there a org.w3c.dom way to do this?
-			XMLSerializer s = new XMLSerializer(sw, new OutputFormat("xml", "UTF-8", true /* doc */));
-			s.serialize(doc);
-
+		    TransformerFactory xformFactory 
+		       = TransformerFactory.newInstance();
+		    Transformer idTransform = xformFactory.newTransformer();
+		    Source input = new DOMSource(doc);
+		    StreamResult output = new StreamResult(sw);
+		    idTransform.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+		    idTransform.transform(input, output);
 			sw.flush();
 			return sw.toString();
 		}
@@ -248,7 +259,7 @@ public class Xml
 		// encode the message body base64, and make it an attribute
 		try
 		{
-			String encoded = Base64.encode(value.getBytes("UTF-8"));
+			String encoded = new String(Base64.encodeBase64(value.getBytes("UTF-8")),"UTF-8");
 			el.setAttribute(tag, encoded);
 		}
 		catch (Exception e)
@@ -276,7 +287,7 @@ public class Xml
 		{
 			try
 			{
-				byte[] decoded = Base64.decode(body);
+				byte[] decoded = Base64.decodeBase64(body.getBytes("UTF-8"));
 				body = new String(decoded, charset);
 			}
 			catch (Exception e)
