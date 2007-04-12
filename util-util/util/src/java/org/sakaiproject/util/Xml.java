@@ -25,7 +25,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Enumeration;
@@ -35,20 +35,18 @@ import java.util.Stack;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSOutput;
+import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
 
 
@@ -197,15 +195,20 @@ public class Xml
 	{
 		try
 		{
-			OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(fileName), "UTF-8");
+			OutputStream out = new FileOutputStream(fileName);
+//			 get an instance of the DOMImplementation registry
+			 DocumentBuilderFactory factory 
+			   = DocumentBuilderFactory.newInstance();
+			  DocumentBuilder builder = factory.newDocumentBuilder();
+			  DOMImplementation impl = builder.getDOMImplementation();
+			  
+			DOMImplementationLS feature = (DOMImplementationLS) impl.getFeature("LS","3.0");
+			LSSerializer serializer = feature.createLSSerializer();
+			LSOutput output = feature.createLSOutput();
+			output.setByteStream(out);
+			output.setEncoding("UTF-8");
+			serializer.write(doc, output);
 			
-		    TransformerFactory xformFactory 
-		       = TransformerFactory.newInstance();
-		    Transformer idTransform = xformFactory.newTransformer();
-		    Source input = new DOMSource(doc);
-		    StreamResult output = new StreamResult(out);
-		    idTransform.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-		    idTransform.transform(input, output);			
 			out.close();
 		}
 		catch (Exception any)
@@ -226,14 +229,23 @@ public class Xml
 	{
 		try
 		{
+			
 			StringWriter sw = new StringWriter();
-		    TransformerFactory xformFactory 
-		       = TransformerFactory.newInstance();
-		    Transformer idTransform = xformFactory.newTransformer();
-		    Source input = new DOMSource(doc);
-		    StreamResult output = new StreamResult(sw);
-		    idTransform.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-		    idTransform.transform(input, output);
+			
+			 DocumentBuilderFactory factory 
+			   = DocumentBuilderFactory.newInstance();
+			  DocumentBuilder builder = factory.newDocumentBuilder();
+			  DOMImplementation impl = builder.getDOMImplementation();
+			  
+			
+			DOMImplementationLS feature = (DOMImplementationLS) impl.getFeature("LS",
+			"3.0");
+			LSSerializer serializer = feature.createLSSerializer();
+			LSOutput output = feature.createLSOutput();
+			output.setCharacterStream(sw);
+			output.setEncoding("UTF-8");
+			serializer.write(doc, output);
+			
 			sw.flush();
 			return sw.toString();
 		}
