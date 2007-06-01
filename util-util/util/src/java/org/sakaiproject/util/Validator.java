@@ -76,7 +76,7 @@ public class Validator
 	protected static final String ESCAPE_URL = "$&+,:;=?@ '\"<>#%{}|\\^~[]`";
 
 	/**
-	 * These can't be encoded in URLs safely even using %nn notation, so encode them using our own custom URL encoding, which the ParameterParser decodes
+	 * These can't be encoded in URLs safely even using %nn notation, so encode them using our own custom URL encoding
 	 */
 	protected static final String ESCAPE_URL_SPECIAL = "^?;";
 
@@ -160,6 +160,9 @@ public class Validator
 
 	/**
 	 * Return a string based on id that is fully escaped using URL rules, using a UTF-8 underlying encoding.
+	 *
+	 * Note: java.net.URLEncode.encode() provides a more standard option
+	 *       FormattedText.decodeNumericCharacterReferences() undoes this op
 	 * 
 	 * @param id
 	 *        The string to escape.
@@ -181,7 +184,7 @@ public class Validator
 				// escape ascii control characters, ascii high bits, specials
 				if (ESCAPE_URL_SPECIAL.indexOf((char) b) != -1)
 				{
-					buf.append("^^x"); // special funky way to encode bad URL characters - ParameterParser will decode it
+					buf.append("^^x"); // special funky way to encode bad URL characters 
 					buf.append(toHex(b));
 					buf.append('^');
 				}
