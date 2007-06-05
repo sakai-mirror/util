@@ -169,7 +169,7 @@ public class FormattedText
 	}
 	
 	/** Matches HTML-style line breaks like &lt;br&gt; */
-	private static Pattern M_patternTagBr = Pattern.compile("<\\s*br\\s+?[^<>]*?>\\s*", Pattern.CASE_INSENSITIVE);
+	private static Pattern M_patternTagBr = Pattern.compile("<\\s*br\\s+?[^<>]*?>", Pattern.CASE_INSENSITIVE);
 
 	/** Matches any HTML-style tag, like &lt;anything&gt; */
 	private static Pattern M_patternTag = Pattern.compile("<.*?>", Pattern.DOTALL);
@@ -251,7 +251,7 @@ public class FormattedText
 		if (replaceWhitespaceTags)
 		{
 			// normalize all variants of the "<br>" HTML tag to be "<br />\n"
-			val = M_patternTagBr.matcher(val).replaceAll("<br />\n");
+			val = M_patternTagBr.matcher(val).replaceAll("<br />");
 
 			// replace "<p>" with nothing. Replace "</p>" and "<p />" HTML tags with "<br />"
 			// val = val.replaceAll("<p>", "");
@@ -617,7 +617,7 @@ public class FormattedText
 	{
 		// normalize all variants of the "<br>" HTML tag to be "<br />\n"
 		// TODO call a method to do this in each process routine
-		String Html = M_patternTagBr.matcher(source).replaceAll("<br />\n");
+		String Html = M_patternTagBr.matcher(source).replaceAll("<br />");
 
 		// process text and tags
 		StringBuffer buf = new StringBuffer();
