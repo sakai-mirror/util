@@ -63,7 +63,6 @@ public class UTF8Test extends TestCase {
 	 ** -- currently commented out because MockHttpServletRequest can't be instantiated for some reason
 	 **/
 	public void testEncodeFileName() {
-		/*
 		// test MSIE type browser
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("USER-AGENT", "MSIE");
@@ -84,7 +83,6 @@ public class UTF8Test extends TestCase {
 		assertEquals("utf8 string should be mime encoded (mozilla)",
 						 mimeUtf8ResourceName,
 						 Web.encodeFileName(request, utf8ResourceName));
-		*/
 						 
 	}
 	
