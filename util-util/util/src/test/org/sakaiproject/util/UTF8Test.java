@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: $
- * $Id: $
+ * $URL:$
+ * $Id:$
  ***********************************************************************************
  *
  * Copyright (c) 2007 The Sakai Foundation.
@@ -38,6 +38,8 @@ public class UTF8Test extends TestCase {
 	
 	protected void setUp() throws Exception {
 		super.setUp();
+		byte[] utf8bytes = utf8ResourceName.getBytes();
+		utf8ResourceName = new String(utf8bytes, "UTF-8");
 	}
 
 	protected void tearDown() throws Exception {
