@@ -158,7 +158,7 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 			 // check if locale is requested for specific user
 			 if ( userId != null )
 			 {
-				 loc = getUserLocale( userId );
+				 loc = getLocale( userId );
 			 }
 			 
 			 else
@@ -183,7 +183,7 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	/**
 	 ** Get user's preferred locale
 	 ***/
-	private Locale getUserLocale( String userId )
+	public Locale getLocale( String userId )
 	{
 		Locale loc = null;
 		Preferences prefs = PreferencesService.getPreferences(userId);
@@ -217,7 +217,7 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		{
 			try
 			{
-				loc = getUserLocale( SessionManager.getCurrentSessionUserId() );
+				loc = getLocale( SessionManager.getCurrentSessionUserId() );
 			}
 			catch (Exception e)
 			{
