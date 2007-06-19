@@ -38,7 +38,6 @@ import org.sakaiproject.i18n.InternationalizedMessages;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.cover.PreferencesService;
-import org.sakaiproject.user.api.User;
 
 /**
  * ResourceLoader provides an alternate implementation of org.util.ResourceBundle, dynamically selecting the prefered locale from either the user's session or from the user's sakai preferences
@@ -52,8 +51,6 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	protected String baseName = null;
 
 	protected Hashtable bundles = new Hashtable();
-	
-	protected User user = null;
 
 	/**
 	 * Default constructor (does nothing)
@@ -70,30 +67,7 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	 */
 	public ResourceLoader(String name)
 	{
-		this.baseName = name;
-	}
-
-	/**
-	 * Constructor: specified user, no baseName
-	 * 
-	 * @param name
-	 *        default ResourceBundle base filename
-	 */
-	public ResourceLoader(User user)
-	{
-		this.user = user;
-	}
-
-	/**
-	 * Constructor: specified user, specified baseName
-	 * 
-	 * @param name
-	 *        default ResourceBundle base filename
-	 */
-	public ResourceLoader(User user, String name)
-	{
-		this.user = user;
-		this.baseName = name;
+		setBaseName(name);
 	}
 
 	public Set entrySet()
@@ -165,20 +139,11 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		 Locale loc = null;
 		 try
 		 {
-			 // check if locale is requested for specific user
-			 if ( user != null )
-			 {
-				 loc = getUserLocale( user.getId() );
-			 }
-			 
-			 else
-			 {
-				 loc = (Locale) SessionManager.getCurrentSession().getAttribute("locale");
-				 // The locale is not in the session. 
-				 // Look for it and set in session
-				 if (loc == null) 
-					 loc = setContextLocale(null);
-			 }
+			 loc = (Locale) SessionManager.getCurrentSession().getAttribute("locale");
+			 // The locale is not in the session. 
+			 // Look for it and set in session
+			 if (loc == null) 
+				 loc = setContextLocale(null);
 		 }
 		 catch(NullPointerException e) 
 		 {
@@ -190,28 +155,6 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		 return loc;
 	}
 
-	/**
-	 ** Get user's preferred locale
-	 ***/
-	private Locale getUserLocale( String userId )
-	{
-		Locale loc = null;
-		Preferences prefs = PreferencesService.getPreferences(userId);
-		ResourceProperties locProps = prefs.getProperties(APPLICATION_ID);
-		String localeString = locProps.getProperty(LOCALE_KEY);
-		
-		if (localeString != null)
-		{
-			String[] locValues = localeString.split("_");
-			if (locValues.length > 1)
-				loc = new Locale(locValues[0], locValues[1]); // language, country
-			else if (locValues.length == 1) 
-				loc = new Locale(locValues[0]); // just language
-		}
-		
-		return loc;
-	}
-	
 	/**
 	 ** Sets user's prefered locale in context
 	 **	 First: sets  locale from Sakai user preferences, if available
@@ -227,7 +170,17 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		{
 			try
 			{
-				loc = getUserLocale( SessionManager.getCurrentSessionUserId() );
+				String userId = SessionManager.getCurrentSessionUserId();
+				Preferences prefs = PreferencesService.getPreferences(userId);
+				ResourceProperties locProps = prefs.getProperties(APPLICATION_ID);
+					 String localeString = locProps.getProperty(LOCALE_KEY);
+				if (localeString != null)
+				{
+					String[] locValues = localeString.split("_");
+					if (locValues.length > 1)
+						loc = new Locale(locValues[0], locValues[1]); // language, country
+					else if (locValues.length == 1) loc = new Locale(locValues[0]); // just language
+				}
 			}
 			catch (Exception e)
 			{
@@ -356,6 +309,18 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	{
 		this.bundles = new Hashtable();
 		M_log.debug("purge bundle cache");
+	}
+
+	/**
+	 * Set baseName
+	 * 
+	 * @param name
+	 *        default ResourceBundle base filename
+	 */
+	public void setBaseName(String name)
+	{
+		M_log.debug("set baseName=" + name);
+		this.baseName = name;
 	}
 
 	public Collection values()
