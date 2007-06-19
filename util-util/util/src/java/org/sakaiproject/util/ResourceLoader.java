@@ -348,6 +348,18 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		M_log.debug("purge bundle cache");
 	}
 
+	/**
+	 * Set baseName
+	 * 
+	 * @param name
+	 *        default ResourceBundle base filename
+	 */
+	public void setBaseName(String name)
+	{
+		M_log.debug("set baseName=" + name);
+		this.baseName = name;
+	}
+
 	public Collection values()
 	{
 		return getBundleAsMap().values();
