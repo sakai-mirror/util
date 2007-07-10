@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>master</artifactId>
-    <groupId>org.sakaiproject</groupId>
-    <version>M2</version>
-    <relativePath>../../../master/pom.xml</relativePath>
-  </parent>
+	<parent>
+		<artifactId>util-base</artifactId>
+		<groupId>org.sakaiproject</groupId>
+		<version>M2</version>
+		<relativePath>../../pom.xml</relativePath>
+	</parent>
   <name>sakai-util-log</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-util-log</artifactId>
@@ -28,7 +28,6 @@
       <version>1.0.4</version>
 <!--url: http://jakarta.apache.org/commons/logging/ -->
 <!--properties:  deploy.target: shared -->
-      <scope>provided</scope>
     </dependency>
     <dependency>
       
@@ -37,7 +36,6 @@
       <version>1.2.8</version>
 <!--url: http://logging.apache.org/log4j/ -->
 <!--properties:  deploy.target: common -->
-      <scope>provided</scope>
     </dependency>
   </dependencies>
   <build>

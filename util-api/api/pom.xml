@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>master</artifactId>
-    <groupId>org.sakaiproject</groupId>
-    <version>M2</version>
-    <relativePath>../../../master/pom.xml</relativePath>
-  </parent>
+	<parent>
+		<artifactId>util-base</artifactId>
+		<groupId>org.sakaiproject</groupId>
+		<version>M2</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
   <name>sakai-util-api</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-util-api</artifactId>
@@ -26,7 +26,6 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-component</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
 <!-- host jdom for all those folks using it in APIs, etc -->
     <dependency>
@@ -35,7 +34,6 @@
       <artifactId>jdom</artifactId>
       <version>1.0</version>
 <!--properties:  deploy.target: shared -->
-      <scope>provided</scope>
     </dependency>
 <!-- jdom's xpath impl depends on jaxen, so it goes to shared too :( -->
     <dependency>
@@ -44,7 +42,6 @@
       <artifactId>jaxen</artifactId>
       <version>1.1-beta-10</version>
 <!--properties:  deploy.target: shared -->
-      <scope>provided</scope>
     </dependency>
   </dependencies>
   <build>
