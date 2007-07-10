@@ -26,20 +26,6 @@
       <artifactId>sakai-util-impl</artifactId>
       <version>${sakai.version}</version>
     </dependency>
-    <dependency>
-      
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-<!-- Id Generator Jar for sakai-id-impl -->
-    <dependency>
-      
-      <groupId>commons-id</groupId>
-      <artifactId>commons-id</artifactId>
-      <version>0.1-dev</version>
-<!--url: http://brutus.apache.org/gump/public/jakarta-commons-sandbox/commons-id/ -->
-    </dependency>
   </dependencies>
   <build>
     
