@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.thread_local.api.ThreadBound;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
 /**
@@ -103,6 +104,15 @@ public class ThreadLocalComponent implements ThreadLocalManager
 			return;
 		}
 
+		Object existing = bindings.get(name);
+		if (existing instanceof ThreadBound)
+		{
+			if (!existing.equals(value))
+			{
+				unbind((ThreadBound) existing);
+			}
+		}
+
 		// remove if nulling
 		if (value == null)
 		{
@@ -117,6 +127,23 @@ public class ThreadLocalComponent implements ThreadLocalManager
 	}
 
 	/**
+	 * @param bound
+	 */
+	private void unbind(ThreadBound bound)
+	{
+		try
+		{
+			bound.unbind();
+			M_log.debug("Unbound from ThreadLocal " + bound);
+		}
+		catch (Throwable t)
+		{
+			M_log.error("Failed to unbind Object " + bound, t);
+		}
+
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public void clear()
@@ -126,6 +153,13 @@ public class ThreadLocalComponent implements ThreadLocalManager
 		{
 			M_log.warn("clear: no bindings!");
 			return;
+		}
+		
+		// unbind all objects that need it
+		for ( Object o : bindings.values() ) {
+			if ( o instanceof ThreadBound ) {
+				unbind((ThreadBound)o);
+			}
 		}
 
 		// clear the bindings map associated with this thread
