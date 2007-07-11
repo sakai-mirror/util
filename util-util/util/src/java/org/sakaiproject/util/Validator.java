@@ -208,7 +208,7 @@ public class Validator
 	} // escapeUrl
 
 	/**
-	 * Return a string based on id that is fully escaped using Resource name validity rules.
+	 * Return a string based on id that is valid according to Resource name validity rules.
 	 * 
 	 * @param id
 	 *        The string to escape.
@@ -268,16 +268,17 @@ public class Validator
 				{
 					buf.append('x');
 				}
+				else if (c < '\040')	// Remove any ascii control characters
+				{
+					buf.append('_');
+				}
+				else if (INVALID_CHARS_IN_RESOURCE_ID.indexOf(c) >= 0 || ESCAPE_CHARS_IN_RESOURCE_ID.indexOf(c) >= 0)
+				{
+					buf.append('_');
+				}
 				else
 				{
-					if (INVALID_CHARS_IN_RESOURCE_ID.indexOf(c) >= 0 || ESCAPE_CHARS_IN_RESOURCE_ID.indexOf(c) >= 0)
-					{
-						buf.append('_');
-					}
-					else
-					{
-						buf.append(c);
-					}
+					buf.append(c);
 				}
 			}
 
