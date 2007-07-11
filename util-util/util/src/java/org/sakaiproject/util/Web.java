@@ -535,4 +535,31 @@ public class Web
 		return new String(ret);
 	}
 
+	/**
+	 ** Encode filename (accomodating UTF-8 characters) for specific browser download/access
+	 ** Sadly, Mozilla uses a different encoding scheme than everyone else
+	 ** Sadly, Safari has a known bug where doesn't correctly translate encoding for user
+	 **
+	 ** This method require inclusion of the javamail mail package. 
+	 **/
+	public static String encodeFileName(HttpServletRequest req, String fileName )
+	{
+		String agent = req.getHeader("USER-AGENT");
+		try
+		{
+			if ( agent != null && agent.indexOf("MSIE")>=0 )
+				fileName = java.net.URLEncoder.encode(fileName, "UTF8");
+			else if ( agent != null && agent.indexOf("Mozilla")>=0 && agent.indexOf("Safari") == -1 )
+				fileName = javax.mail.internet.MimeUtility.encodeText(fileName, "UTF8", "B");
+			else
+				fileName = java.net.URLEncoder.encode(fileName, "UTF8");
+		}
+		catch (java.io.UnsupportedEncodingException e)
+		{
+			M_log.error(e);
+		}
+		
+		return fileName;		
+	}
+
 }
