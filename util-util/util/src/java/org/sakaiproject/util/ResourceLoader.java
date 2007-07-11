@@ -125,36 +125,68 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 			return dflt;
 		}
 	}
+   
+	/**
+	 ** Return user's prefered locale
+	 **	 First: return locale from Sakai user preferences, if available
+	 **	 Second: return locale from user session, if available
+	 **	 Last: return system default locale
+	 **
+	 ** @return user's Locale object
+	 **/
+	public Locale getLocale()
+	{			 
+		 Locale loc = null;
+		 try
+		 {
+			 loc = (Locale) SessionManager.getCurrentSession().getAttribute("locale");
+			 // The locale is not in the session. 
+			 // Look for it and set in session
+			 if (loc == null) 
+				 loc = setContextLocale(null);
+		 }
+		 catch(NullPointerException e) 
+		 {
+			 // The locale is not in the session. 
+			 // Look for it and set in session
+			 loc = setContextLocale(null);
+		 } 
+
+		 return loc;
+	}
 
 	/**
-	 * * Return user's prefered locale * First: return locale from Sakai user preferences, if available * Second: return locale from user session, if available * Last: return system default locale * *
-	 * 
-	 * @return user's Locale object
-	 */
-	public Locale getLocale()
-	{
-		Locale loc = null;
-
-		// First: find locale from Sakai user preferences, if available
-		try
+	 ** Sets user's prefered locale in context
+	 **	 First: sets  locale from Sakai user preferences, if available
+	 **	 Second: sets locale from user session, if available
+	 **	 Last: sets system default locale
+	 **
+	 ** @return user's Locale object
+	 **/
+	public Locale setContextLocale(Locale loc)
+	{		 
+		//	 First : find locale from Sakai user preferences, if available
+		if (loc == null) 
 		{
-			String userId = SessionManager.getCurrentSessionUserId();
-			Preferences prefs = PreferencesService.getPreferences(userId);
-			ResourceProperties locProps = prefs.getProperties(APPLICATION_ID);
-
-			String localeString = locProps.getProperty(LOCALE_KEY);
-			if (localeString != null)
+			try
 			{
-				String[] locValues = localeString.split("_");
-				if (locValues.length > 1)
-					loc = new Locale(locValues[0], locValues[1]); // language, country
-				else if (locValues.length == 1) loc = new Locale(locValues[0]); // just language
+				String userId = SessionManager.getCurrentSessionUserId();
+				Preferences prefs = PreferencesService.getPreferences(userId);
+				ResourceProperties locProps = prefs.getProperties(APPLICATION_ID);
+					 String localeString = locProps.getProperty(LOCALE_KEY);
+				if (localeString != null)
+				{
+					String[] locValues = localeString.split("_");
+					if (locValues.length > 1)
+						loc = new Locale(locValues[0], locValues[1]); // language, country
+					else if (locValues.length == 1) loc = new Locale(locValues[0]); // just language
+				}
 			}
+			catch (Exception e)
+			{
+			} // ignore and continue
 		}
-		catch (Exception e)
-		{
-		} // ignore and continue
-
+			  
 		// Second: find locale from user session, if available
 		if (loc == null)
 		{
@@ -179,7 +211,16 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 			loc = new Locale("");
 		}
 
-		return loc;
+		//Write the sakai locale in the session	
+		try 
+		{
+		  SessionManager.getCurrentSession().setAttribute("locale",loc);
+		}
+		catch (Exception e) 
+		{
+		} //Ignore and continue
+		 
+		return loc;		  
 	}
 
 	/**
