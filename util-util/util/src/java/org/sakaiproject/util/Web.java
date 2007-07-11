@@ -41,12 +41,6 @@ public class Web
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(Web.class);
 
-	/** These characters are escaped when making a URL */
-	protected static final String ESCAPE_URL = "$&+,:;=?@ '\"<>#%{}|\\^~[]`";
-
-	/** These can't be encoded in URLs safely even using %nn notation, so encode them using our own custom URL encoding, which the ParameterParser decodes */
-	protected static final String ESCAPE_URL_SPECIAL = "^?;";
-
 	protected static void displayStringChars(PrintWriter out, String str)
 	{
 		if (str == null)
@@ -178,48 +172,16 @@ public class Web
 	/**
 	 * Return a string based on id that is fully escaped using URL rules, using a UTF-8 underlying encoding.
 	 * 
+	 * Note: java.net.URLEncode.encode() provides a more standard option
+	 *       FormattedText.decodeNumericCharacterReferences() undoes this op
+	 * 
 	 * @param id
 	 *        The string to escape.
 	 * @return id fully escaped using URL rules.
 	 */
 	public static String escapeUrl(String id)
 	{
-		if (id == null) return "";
-		try
-		{
-			// convert the string to bytes in UTF-8
-			byte[] bytes = id.getBytes("UTF-8");
-
-			StringBuffer buf = new StringBuffer();
-			for (int i = 0; i < bytes.length; i++)
-			{
-				byte b = bytes[i];
-				// escape ascii control characters, ascii high bits, specials
-				if (ESCAPE_URL_SPECIAL.indexOf((char) b) != -1)
-				{
-					buf.append("^^x"); // special funky way to encode bad URL characters - ParameterParser will decode it
-					buf.append(toHex(b));
-					buf.append('^');
-				}
-				else if ((ESCAPE_URL.indexOf((char) b) != -1) || (b <= 0x1F) || (b == 0x7F) || (b >= 0x80))
-				{
-					buf.append("%");
-					buf.append(toHex(b));
-				}
-				else
-				{
-					buf.append((char) b);
-				}
-			}
-
-			String rv = buf.toString();
-			return rv;
-		}
-		catch (Exception e)
-		{
-			M_log.warn("escapeUrl: ", e);
-			return id;
-		}
+		return Validator.escapeUrl( id );
 
 	} // escapeUrl
 
