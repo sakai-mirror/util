@@ -270,14 +270,6 @@ public class Validator
 				}
 				else
 				{
-					while (c > '\176')
-					{
-						c = (char) (c - '\117');
-					}
-					while (c < '\040')
-					{
-						c = (char) (c + '\040');
-					}
 					if (INVALID_CHARS_IN_RESOURCE_ID.indexOf(c) >= 0 || ESCAPE_CHARS_IN_RESOURCE_ID.indexOf(c) >= 0)
 					{
 						buf.append('_');
