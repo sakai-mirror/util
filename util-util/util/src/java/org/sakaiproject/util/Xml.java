@@ -23,9 +23,11 @@ package org.sakaiproject.util;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Enumeration;
@@ -35,6 +37,8 @@ import java.util.Stack;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,6 +52,8 @@ import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 
 /**
@@ -59,6 +65,8 @@ public class Xml
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(Xml.class);
+	private static SAXParserFactory parserFactory;
+	private static ThreadLocal<SAXParser> parserHolder = new ThreadLocal<SAXParser>();
 
 	/**
 	 * Create a new DOM Document.
@@ -158,6 +166,48 @@ public class Xml
 			M_log.warn("readDocumentFromString: " + any.toString());
 			return null;
 		}
+	}
+	
+
+	
+	public static void processString( String in, DefaultHandler dh ) throws SAXException, IOException {
+		Reader r = new StringReader(in);
+		processReader(r,dh);
+		r.close();
+	}
+	public static void processStream( InputStream in, DefaultHandler dh ) throws SAXException, IOException {
+		processReader(new InputStreamReader(in),dh);
+	}
+	
+	public static void processReader(Reader in, DefaultHandler dh) throws SAXException,
+			IOException
+	{
+		InputSource ss = new InputSource(in);
+
+		SAXParser p = parserHolder .get();
+		if (p == null)
+		{
+			if (parserFactory == null)
+			{
+				parserFactory = SAXParserFactory.newInstance();
+				parserFactory.setNamespaceAware(false);
+				parserFactory.setValidating(false);
+			}
+			try
+			{
+				p = parserFactory.newSAXParser();
+				parserHolder.set(p);
+			}
+			catch (ParserConfigurationException e)
+			{
+				throw new SAXException("Failed to get a parser ", e);
+			}
+		}
+		else
+		{
+			p.reset();
+		}
+		p.parse(ss, dh);
 	}
 
 	/**
@@ -295,6 +345,32 @@ public class Xml
 		if (charset == null) charset = "UTF-8";
 
 		String body = StringUtil.trimToNull(el.getAttribute(tag));
+		if (body != null)
+		{
+			try
+			{
+				byte[] decoded = CommonsCodecBase64.decodeBase64(body.getBytes("UTF-8"));
+				body = new String(decoded, charset);
+			}
+			catch (Exception e)
+			{
+				M_log.warn("decodeAttribute: " + e);
+			}
+		}
+
+		if (body == null) body = "";
+
+		return body;
+	}
+	/**
+	 * Decode a value with a given charset
+	 * @param charset
+	 * @param value
+	 * @return
+	 */
+	public static String decode(String charset, String value)
+	{
+		String body = StringUtil.trimToNull(value);
 		if (body != null)
 		{
 			try
