@@ -24,6 +24,8 @@ package org.sakaiproject.util;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.util.Enumeration;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.http.HttpServletRequest;
@@ -65,7 +67,26 @@ public class Web
 	 */
 	public static String escapeHtml(String value)
 	{
-		return FormattedText.escapeHtml(value, true);
+		return escapeHtml(value, true);
+	}
+	
+	/**
+	 * For converting plain-text URLs in a String to HTML &lt;a&gt; tags
+	 * Any URLs in the source text that happen to be already in a &lt;a&gt; tag will be unaffected.
+	 * @param text the plain text to convert
+	 * @return the full source text with URLs converted to HTML.
+	 */
+	public static String encodeUrlsAsHtml(String text)
+	{
+		Pattern p = Pattern.compile("(?<!href=['\"]{1})(((https?|s?ftp|ftps|file|smb|afp|nfs|(x-)?man|gopher|txmt)://|mailto:)[-:;@a-zA-Z0-9_.,~%+/?=&#]+(?<![.,?:]))");
+		Matcher m = p.matcher(text);
+		StringBuffer buf = new StringBuffer();
+		while(m.find()) {
+			String matchedUrl = m.group();
+			m.appendReplacement(buf, "<a href=\"" + Web.unEscapeHtml(matchedUrl) + "\">$1</a>");
+		}
+		m.appendTail(buf);
+		return buf.toString();
 	}
 
 	/**
@@ -78,6 +99,24 @@ public class Web
 	public static String escapeHtmlFormattedText(String value)
 	{
 		return FormattedText.escapeHtmlFormattedText(value);
+	}
+	
+	/**
+	 * Returns a String with HTML entity references converted to characters suitable for processing as formatted text.
+	 * 
+	 * @param value
+	 *        The text containing entity references (e.g., a News item description).
+	 * @return The HTML, ready for processing.
+	 */
+	public static String unEscapeHtml(String value)
+	{
+		if (value == null) return "";
+		if (value.equals("")) return "";
+		value = value.replaceAll("&lt;", "<");
+		value = value.replaceAll("&gt;", ">");
+		value = value.replaceAll("&amp;", "&");
+		value = value.replaceAll("&quot;", "\"");
+		return value;
 	}
 
 	/**
@@ -560,6 +599,99 @@ public class Web
 		}
 		
 		return fileName;		
+	}
+	
+	/**
+	 * Escape the given value so that it appears as-is in HTML - that is, HTML meta-characters like '<' are escaped to HTML character entity references like '&lt;'. Markup, amper, quote are escaped. Whitespace is not.
+	 * 
+	 * @param value
+	 *        The string to escape.
+	 * @param escapeNewlines
+	 *        Whether to escape newlines as "&lt;br /&gt;\n" so that they appear as HTML line breaks.
+	 * @return value fully escaped for HTML.
+	 */
+	public static String escapeHtml(String value, boolean escapeNewlines)
+	{
+		if (value == null) return "";
+
+		try
+		{
+			// lazily allocate the StringBuffer
+			// only if changes are actually made; otherwise
+			// just return the given string without changing it.
+			StringBuffer buf = (false) ? null : new StringBuffer();
+			final int len = value.length();
+			for (int i = 0; i < len; i++)
+			{
+				char c = value.charAt(i);
+				switch (c)
+				{
+					case '<':
+					{
+						if (buf == null) buf = new StringBuffer(value.substring(0, i));
+						buf.append("&lt;");
+					}
+						break;
+
+					case '>':
+					{
+						if (buf == null) buf = new StringBuffer(value.substring(0, i));
+						buf.append("&gt;");
+					}
+						break;
+
+					case '&':
+					{
+						if (buf == null) buf = new StringBuffer(value.substring(0, i));
+						buf.append("&amp;");
+					}
+						break;
+
+					case '"':
+					{
+						if (buf == null) buf = new StringBuffer(value.substring(0, i));
+						buf.append("&quot;");
+					}
+						break;
+					case '\n':
+					{
+						if (escapeNewlines)
+						{
+							if (buf == null) buf = new StringBuffer(value.substring(0, i));
+							buf.append("<br />\n");
+						}
+						else
+						{
+							if (buf != null) buf.append(c);
+						}
+					}
+						break;
+					default:
+					{
+						if (c < 128)
+						{
+							if (buf != null) buf.append(c);
+						}
+						else
+						{
+							// escape higher Unicode characters using an
+							// HTML numeric character entity reference like "&#15672;"
+							if (buf == null) buf = new StringBuffer(value.substring(0, i));
+							buf.append("&#");
+							buf.append(Integer.toString((int) c));
+							buf.append(";");
+						}
+					}
+						break;
+				}
+			} // for
+
+			return (buf == null) ? value : buf.toString();
+		}
+		catch (Exception e)
+		{
+			return value;
+		}
 	}
 
 }
