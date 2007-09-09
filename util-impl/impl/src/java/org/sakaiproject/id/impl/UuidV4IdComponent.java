@@ -21,7 +21,8 @@
 
 package org.sakaiproject.id.impl;
 
-import org.apache.commons.id.uuid.VersionFourGenerator;
+import java.util.UUID;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.id.api.IdManager;
@@ -35,9 +36,6 @@ public class UuidV4IdComponent implements IdManager
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(UuidV4IdComponent.class);
-
-	/** Our Id Generator. */
-	protected static final VersionFourGenerator VFG = new VersionFourGenerator();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies and their setter methods
@@ -72,8 +70,6 @@ public class UuidV4IdComponent implements IdManager
 	 */
 	public String createUuid()
 	{
-		String id = VFG.nextIdentifier().toString();
-
-		return id;
+		return UUID.randomUUID().toString();
 	}
 }

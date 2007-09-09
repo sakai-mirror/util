@@ -4,7 +4,6 @@
   <classpathentry sourcepath="JRE_SRC" kind="var" path="JRE_LIB"/>
   <classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar"/>
   <classpathentry combineaccessrules="false" kind="src" path="/component-api"/>
-  <classpathentry kind="var" path="M2_REPO/commons-id/commons-id/0.1-dev/commons-id-0.1-dev.jar"/>
   <classpathentry combineaccessrules="false" kind="src" path="/util-api"/>
   <classpathentry combineaccessrules="false" kind="src" path="/tool-api"/>
   <classpathentry combineaccessrules="false" kind="src" path="/user-api"/>

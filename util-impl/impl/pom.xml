@@ -62,14 +62,6 @@
       <artifactId>sakai-entity-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
-<!-- Id Generator Jar -->
-    <dependency>
-      
-      <groupId>commons-id</groupId>
-      <artifactId>commons-id</artifactId>
-      <version>0.1-dev</version>
-<!--url: http://brutus.apache.org/gump/public/jakarta-commons-sandbox/commons-id/ -->
-    </dependency>
     <dependency>
       
       <groupId>commons-logging</groupId>
