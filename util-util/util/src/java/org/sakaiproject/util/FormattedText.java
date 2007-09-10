@@ -210,7 +210,7 @@ public class FormattedText
 	 *        User-readable error messages will be returned here.
 	 * @return The validated processed formatted text, ready for use by the system.
 	 */
-	public static String processFormattedText(final String strFromBrowser, StringBuffer errorMessages)
+	public static String processFormattedText(final String strFromBrowser, StringBuilder errorMessages)
 	{
 		boolean checkForEvilTags = true;
 		boolean replaceWhitespaceTags = true;
@@ -223,7 +223,7 @@ public class FormattedText
 	 * @param strFromBrowser
 	 * @param errorMessages
 	 */
-	public static String processHtmlDocument(final String strFromBrowser, StringBuffer errorMessages)
+	public static String processHtmlDocument(final String strFromBrowser, StringBuilder errorMessages)
 	{
 		return strFromBrowser;
 	}
@@ -242,7 +242,7 @@ public class FormattedText
 	 *        If true, clean up line breaks to be like "&lt;br /&gt;".
 	 * @return The validated processed HTML formatted text, ready for use by the system.
 	 */
-	public static String processFormattedText(final String strFromBrowser, StringBuffer errorMessages, boolean checkForEvilTags,
+	public static String processFormattedText(final String strFromBrowser, StringBuilder errorMessages, boolean checkForEvilTags,
 			boolean replaceWhitespaceTags)
 	{
 		String val = strFromBrowser;
@@ -271,7 +271,7 @@ public class FormattedText
 		}
 
 		// close any open HTML tags (that the user may have accidentally left open)
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		trimFormattedText(val, Integer.MAX_VALUE, buf);
 		val = buf.toString();
 
@@ -385,10 +385,10 @@ public class FormattedText
 
 		try
 		{
-			// lazily allocate the StringBuffer
+			// lazily allocate the StringBuilder
 			// only if changes are actually made; otherwise
 			// just return the given string without changing it.
-			StringBuffer buf = (LAZY_CONSTRUCTION) ? null : new StringBuffer();
+			StringBuilder buf = (LAZY_CONSTRUCTION) ? null : new StringBuilder();
 			final int len = value.length();
 			for (int i = 0; i < len; i++)
 			{
@@ -397,28 +397,28 @@ public class FormattedText
 				{
 					case '<':
 					{
-						if (buf == null) buf = new StringBuffer(value.substring(0, i));
+						if (buf == null) buf = new StringBuilder(value.substring(0, i));
 						buf.append("&lt;");
 					}
 						break;
 
 					case '>':
 					{
-						if (buf == null) buf = new StringBuffer(value.substring(0, i));
+						if (buf == null) buf = new StringBuilder(value.substring(0, i));
 						buf.append("&gt;");
 					}
 						break;
 
 					case '&':
 					{
-						if (buf == null) buf = new StringBuffer(value.substring(0, i));
+						if (buf == null) buf = new StringBuilder(value.substring(0, i));
 						buf.append("&amp;");
 					}
 						break;
 
 					case '"':
 					{
-						if (buf == null) buf = new StringBuffer(value.substring(0, i));
+						if (buf == null) buf = new StringBuilder(value.substring(0, i));
 						buf.append("&quot;");
 					}
 						break;
@@ -426,7 +426,7 @@ public class FormattedText
 					{
 						if (escapeNewlines)
 						{
-							if (buf == null) buf = new StringBuffer(value.substring(0, i));
+							if (buf == null) buf = new StringBuilder(value.substring(0, i));
 							buf.append("<br />\n");
 						}
 						else
@@ -445,7 +445,7 @@ public class FormattedText
 						{
 							// escape higher Unicode characters using an
 							// HTML numeric character entity reference like "&#15672;"
-							if (buf == null) buf = new StringBuffer(value.substring(0, i));
+							if (buf == null) buf = new StringBuilder(value.substring(0, i));
 							buf.append("&#");
 							buf.append(Integer.toString((int) c));
 							buf.append(";");
@@ -491,10 +491,10 @@ public class FormattedText
 
 		try
 		{
-			// lazily allocate the StringBuffer
+			// lazily allocate the StringBuilder
 			// only if changes are actually made; otherwise
 			// just return the given string without changing it.
-			StringBuffer buf = (LAZY_CONSTRUCTION) ? null : new StringBuffer();
+			StringBuilder buf = (LAZY_CONSTRUCTION) ? null : new StringBuilder();
 			final int len = value.length();
 			for (int i = 0; i < len; i++)
 			{
@@ -507,7 +507,7 @@ public class FormattedText
 				{
 					// escape higher Unicode characters using an
 					// HTML numeric character entity reference like "&#15672;"
-					if (buf == null) buf = new StringBuffer(value.substring(0, i));
+					if (buf == null) buf = new StringBuilder(value.substring(0, i));
 					buf.append("&#");
 					buf.append(Integer.toString((int) c));
 					buf.append(";");
@@ -610,17 +610,17 @@ public class FormattedText
 			M_log.warn("FormattedText.processEscapedHtml unEscapeHtml(Html):", e);
 		}
 
-		return processHtml(Html, new StringBuffer());
+		return processHtml(Html, new StringBuilder());
 	}
 
-	private static String processHtml(final String source, StringBuffer errorMessages)
+	private static String processHtml(final String source, StringBuilder errorMessages)
 	{
 		// normalize all variants of the "<br>" HTML tag to be "<br />\n"
 		// TODO call a method to do this in each process routine
 		String Html = M_patternTagBr.matcher(source).replaceAll("<br />");
 
 		// process text and tags
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		if (Html != null)
 		{
 			try
@@ -653,9 +653,9 @@ public class FormattedText
 		return new String(buf.toString());
 	}
 
-	private static String checkTag (final String tag, StringBuffer errorMessages)
+	private static String checkTag (final String tag, StringBuilder errorMessages)
 	{
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		boolean escape = true;
 
 		// if it's a good open tag, don't escape the HTML
@@ -702,11 +702,11 @@ public class FormattedText
 		return buf.toString();
 	}
 	
-	private static String checkAttributes(final String tag, StringBuffer errorMessages)
+	private static String checkAttributes(final String tag, StringBuilder errorMessages)
 	{
 		Matcher fullTag = M_patternTagPieces.matcher(tag);
 		String close = "";
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		String leftOvers = "";
 
 		if (fullTag.matches() && fullTag.groupCount() > 2)
@@ -755,7 +755,7 @@ public class FormattedText
 		return buf.toString();
 	}
 
-	private static boolean checkValue(final String value, StringBuffer errorMessages)
+	private static boolean checkValue(final String value, StringBuilder errorMessages)
 	{
 		boolean pass = true;
 
@@ -876,10 +876,10 @@ public class FormattedText
 	 * @param maxNumOfChars
 	 *        The maximum number of displayed characters in the returned trimmed formatted text.
 	 * @param strTrimmed
-	 *        A StringBuffer to hold the trimmed formatted text
+	 *        A StringBuilder to hold the trimmed formatted text
 	 * @return true If the formatted text was trimmed
 	 */
-	public static boolean trimFormattedText(String formattedText, final int maxNumOfChars, StringBuffer strTrimmed)
+	public static boolean trimFormattedText(String formattedText, final int maxNumOfChars, StringBuilder strTrimmed)
 	{
 		// This should return a formatted text substring which contains formatting, but which
 		// isn't broken in the middle of formatting, eg, "<strong>Hi there</stro" It also shouldn't
@@ -991,10 +991,10 @@ public class FormattedText
 	 */
 	public static String decodeNumericCharacterReferences(String value)
 	{
-		// lazily allocate StringBuffer only if needed
+		// lazily allocate StringBuilder only if needed
 		// buf is not null ONLY when a numeric character reference
 		// is found - otherwise, buf is not used at all
-		StringBuffer buf = null;
+		StringBuilder buf = null;
 		final int valuelength = value.length();
 		for (int i = 0; i < valuelength; i++)
 		{
@@ -1008,7 +1008,7 @@ public class FormattedText
 					pos++;
 					hex = true;
 				}
-				StringBuffer num = new StringBuffer(6);
+				StringBuilder num = new StringBuilder(6);
 				while (pos < valuelength && value.charAt(pos) != ';' && value.charAt(pos) != '^')
 				{
 					num.append(value.charAt(pos));
@@ -1022,7 +1022,7 @@ public class FormattedText
 						// Found an HTML numeric character reference!
 						if (buf == null)
 						{
-							buf = new StringBuffer();
+							buf = new StringBuilder();
 							buf.append(value.substring(0, i));
 						}
 

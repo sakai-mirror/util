@@ -177,7 +177,7 @@ public class Validator
 			// convert the string to bytes in UTF-8
 			byte[] bytes = id.getBytes("UTF-8");
 
-			StringBuffer buf = new StringBuffer();
+			StringBuilder buf = new StringBuilder();
 			for (int i = 0; i < bytes.length; i++)
 			{
 				byte b = bytes[i];
@@ -223,7 +223,7 @@ public class Validator
 		id = id.trim();
 		try
 		{
-			StringBuffer buf = new StringBuffer();
+			StringBuilder buf = new StringBuilder();
 			for (int i = 0; i < id.length(); i++)
 			{
 				char c = id.charAt(i);
@@ -308,7 +308,7 @@ public class Validator
 		if (id == null) return "";
 		try
 		{
-			StringBuffer buf = new StringBuffer();
+			StringBuilder buf = new StringBuilder();
 			for (int i = 0; i < id.length(); i++)
 			{
 				char c = id.charAt(i);
@@ -345,7 +345,7 @@ public class Validator
 		if (id == null) return "";
 		try
 		{
-			StringBuffer buf = new StringBuffer();
+			StringBuilder buf = new StringBuilder();
 			for (int i = 0; i < id.length(); i++)
 			{
 				char c = id.charAt(i);
@@ -382,7 +382,7 @@ public class Validator
 		if (value == null) return "";
 		try
 		{
-			StringBuffer buf = new StringBuffer();
+			StringBuilder buf = new StringBuilder();
 			for (int i = 0; i < value.length(); i++)
 			{
 				char c = value.charAt(i);
@@ -428,7 +428,7 @@ public class Validator
 		if (value == null) return "";
 		try
 		{
-			StringBuffer buf = new StringBuffer();
+			StringBuilder buf = new StringBuilder();
 			for (int i = 0; i < value.length(); i++)
 			{
 				char c = value.charAt(i);
@@ -465,7 +465,7 @@ public class Validator
 		if (value == null || value == "") return "";
 		try
 		{
-			StringBuffer buf = new StringBuffer();
+			StringBuilder buf = new StringBuilder();
 
 			// prepend 'i' if first character is not a letter
 			if (!java.lang.Character.isLetter(value.charAt(0)))
@@ -578,7 +578,7 @@ public class Validator
 		// unix: /usr/local/dev/test.txt
 		// mac:? one:two:three:four
 		// so... just take the last characters back till we see a \ or / or :
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		int index = fullName.length() - 1;
 		while (index >= 0)
 		{
@@ -600,7 +600,7 @@ public class Validator
 	 */
 	public static String getFileSizeWithDividor(String size)
 	{
-		StringBuffer newSize = new StringBuffer(size);
+		StringBuilder newSize = new StringBuilder(size);
 
 		int length = size.length();
 		int index = size.length();
@@ -709,7 +709,7 @@ public class Validator
 	 */
 	public static String limit(String value, int length)
 	{
-		StringBuffer buf = new StringBuffer(value);
+		StringBuilder buf = new StringBuilder(value);
 		if (buf.length() > length)
 		{
 			buf.setLength(length);
@@ -731,7 +731,7 @@ public class Validator
 	 */
 	public static String limitFormattedText(String value, int length)
 	{
-		StringBuffer ret = new StringBuffer();
+		StringBuilder ret = new StringBuilder();
 		value = FormattedText.escapeHtmlFormattedTextSupressNewlines(value);
 		boolean didTrim = FormattedText.trimFormattedText(value, length, ret);
 		if (didTrim) ret.append("...");
@@ -751,7 +751,7 @@ public class Validator
 		if (value.length() == 0) return value;
 
 		final int len = value.length();
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 
 		for (int i = 0; i < len; i++)
 		{
@@ -808,7 +808,7 @@ public class Validator
 		if (value.length() == 0) return value;
 
 		final int len = value.length();
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 
 		for (int i = 0; i < len; i++)
 		{

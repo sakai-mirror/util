@@ -74,7 +74,7 @@ public class StringUtil
 	{
 		if (parts == null) return null;
 
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		for (int i = 0; i < parts.length; i++)
 		{
 			if (parts[i] != null) buf.append(parts[i]);
@@ -102,7 +102,7 @@ public class StringUtil
 		if ((index < 0) || (index >= parts.length)) return null;
 		if (index+length > parts.length) return null;
 
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		for (int i = index; i < index+length; i++)
 		{
 			if (parts[i] != null) buf.append(parts[i]);
@@ -390,7 +390,7 @@ public class StringUtil
 	 */
 	public static String limit(String value, int length)
 	{
-		StringBuffer buf = new StringBuffer(value);
+		StringBuilder buf = new StringBuilder(value);
 		if (buf.length() > length)
 		{
 			buf.setLength(length);

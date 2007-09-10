@@ -131,7 +131,7 @@ public class Web
 		if (value == null || value == "") return "";
 		try
 		{
-			StringBuffer buf = new StringBuffer();
+			StringBuilder buf = new StringBuilder();
 
 			// prepend 'i' if first character is not a letter
 			if (!java.lang.Character.isLetter(value.charAt(0)))
@@ -175,7 +175,7 @@ public class Web
 		if (value == null) return "";
 		try
 		{
-			StringBuffer buf = new StringBuffer();
+			StringBuilder buf = new StringBuilder();
 			for (int i = 0; i < value.length(); i++)
 			{
 				char c = value.charAt(i);
@@ -287,7 +287,7 @@ public class Web
 	 */
 	public static String makePath(String[] parts, int start, int end)
 	{
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		for (int i = start; i < end; i++)
 		{
 			buf.append('/');
@@ -327,7 +327,7 @@ public class Web
 	 */
 	public static String returnUrl(HttpServletRequest req, String path)
 	{
-		StringBuffer url = new StringBuffer();
+		StringBuilder url = new StringBuilder();
 		url.append(serverUrl(req));
 		url.append(req.getContextPath());
 		url.append(req.getServletPath());
@@ -389,7 +389,7 @@ public class Web
 			secure = req.isSecure();
 		}
 
-		StringBuffer url = new StringBuffer();
+		StringBuilder url = new StringBuilder();
 		url.append(transport);
 		url.append("://");
 		url.append(req.getServerName());
@@ -616,10 +616,10 @@ public class Web
 
 		try
 		{
-			// lazily allocate the StringBuffer
+			// lazily allocate the StringBuilder
 			// only if changes are actually made; otherwise
 			// just return the given string without changing it.
-			StringBuffer buf = (false) ? null : new StringBuffer();
+			StringBuilder buf = (false) ? null : new StringBuilder();
 			final int len = value.length();
 			for (int i = 0; i < len; i++)
 			{
@@ -628,28 +628,28 @@ public class Web
 				{
 					case '<':
 					{
-						if (buf == null) buf = new StringBuffer(value.substring(0, i));
+						if (buf == null) buf = new StringBuilder(value.substring(0, i));
 						buf.append("&lt;");
 					}
 						break;
 
 					case '>':
 					{
-						if (buf == null) buf = new StringBuffer(value.substring(0, i));
+						if (buf == null) buf = new StringBuilder(value.substring(0, i));
 						buf.append("&gt;");
 					}
 						break;
 
 					case '&':
 					{
-						if (buf == null) buf = new StringBuffer(value.substring(0, i));
+						if (buf == null) buf = new StringBuilder(value.substring(0, i));
 						buf.append("&amp;");
 					}
 						break;
 
 					case '"':
 					{
-						if (buf == null) buf = new StringBuffer(value.substring(0, i));
+						if (buf == null) buf = new StringBuilder(value.substring(0, i));
 						buf.append("&quot;");
 					}
 						break;
@@ -657,7 +657,7 @@ public class Web
 					{
 						if (escapeNewlines)
 						{
-							if (buf == null) buf = new StringBuffer(value.substring(0, i));
+							if (buf == null) buf = new StringBuilder(value.substring(0, i));
 							buf.append("<br />\n");
 						}
 						else
@@ -676,7 +676,7 @@ public class Web
 						{
 							// escape higher Unicode characters using an
 							// HTML numeric character entity reference like "&#15672;"
-							if (buf == null) buf = new StringBuffer(value.substring(0, i));
+							if (buf == null) buf = new StringBuilder(value.substring(0, i));
 							buf.append("&#");
 							buf.append(Integer.toString((int) c));
 							buf.append(";");

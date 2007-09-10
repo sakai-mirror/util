@@ -139,7 +139,7 @@ public class Blob implements Cloneable, Serializable {
 	*/
 	public static final String toHex(short s) {
 
-		StringBuffer sb = new StringBuffer(5);
+		StringBuilder sb = new StringBuilder(5);
 
 		sb.append(toHex((byte)(s >>> 8)));
 		sb.append(' ');
@@ -157,7 +157,7 @@ public class Blob implements Cloneable, Serializable {
 	*/
 	public static final String toHex(int i) {
 
-		StringBuffer sb = new StringBuffer(11);
+		StringBuilder sb = new StringBuilder(11);
 
 		sb.append(toHex((byte)(i >>> 24)));
 		sb.append(' ');
@@ -178,7 +178,7 @@ public class Blob implements Cloneable, Serializable {
 	*/
 	public static final String toHex(long l) {
 
-		StringBuffer sb = new StringBuffer(11);
+		StringBuilder sb = new StringBuilder(11);
 
 		sb.append(toHex((byte)(l >>> 56)));
 		sb.append(' ');
@@ -209,7 +209,7 @@ public class Blob implements Cloneable, Serializable {
 	*/
 	public static final String toHex(String s) {
 
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 
 		char chars[] = s.toCharArray();
 		for (int x = 0 ; x < chars.length ; x++) {
@@ -281,7 +281,7 @@ public class Blob implements Cloneable, Serializable {
 	*/
 	public static final String strstr(int n, char c) {
 
-		StringBuffer ret = new StringBuffer(n);
+		StringBuilder ret = new StringBuilder(n);
 
 		for (int x = 0 ; x < n ; x++) {
 			ret.append(c);
@@ -1236,7 +1236,7 @@ public class Blob implements Cloneable, Serializable {
 		}
 
 		// Return String
-		StringBuffer ret = new StringBuffer(len);
+		StringBuilder ret = new StringBuilder(len);
 
 		// hold character
 		char c;

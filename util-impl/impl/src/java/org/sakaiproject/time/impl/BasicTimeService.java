@@ -713,7 +713,7 @@ public class BasicTimeService implements TimeService
 		public String toString()
 		{
 			// a place to build the string (slightly larger)
-			StringBuffer buf = new StringBuffer(64);
+			StringBuilder buf = new StringBuilder(64);
 
 			// start with the start value, always used
 			buf.append(m_startTime);
@@ -756,7 +756,7 @@ public class BasicTimeService implements TimeService
 		public String toStringHR()
 		{
 			// a place to build the string (slightly larger)
-			StringBuffer buf = new StringBuffer(64);
+			StringBuilder buf = new StringBuilder(64);
 
 			// start with the start value, always used
 			buf.append(m_startTime.toStringGmtFull());
