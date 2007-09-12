@@ -66,7 +66,6 @@ public class Xml
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(Xml.class);
 	private static SAXParserFactory parserFactory;
-	private static ThreadLocal<SAXParser> parserHolder = new ThreadLocal<SAXParser>();
 
 	/**
 	 * Create a new DOM Document.
@@ -204,28 +203,21 @@ public class Xml
 	{
 		InputSource ss = new InputSource(in);
 
-		SAXParser p = parserHolder .get();
-		if (p == null)
+		SAXParser p = null;
+		if (parserFactory == null)
 		{
-			if (parserFactory == null)
-			{
-				parserFactory = SAXParserFactory.newInstance();
-				parserFactory.setNamespaceAware(false);
-				parserFactory.setValidating(false);
-			}
-			try
-			{
-				p = parserFactory.newSAXParser();
-				parserHolder.set(p);
-			}
-			catch (ParserConfigurationException e)
-			{
-				throw new SAXException("Failed to get a parser ", e);
-			}
+			parserFactory = SAXParserFactory.newInstance();
+			parserFactory.setNamespaceAware(false);
+			parserFactory.setValidating(false);
 		}
-		else
+		try
 		{
-			p.reset();
+			p = parserFactory.newSAXParser();
+
+		}
+		catch (ParserConfigurationException e)
+		{
+			throw new SAXException("Failed to get a parser ", e);
 		}
 		p.parse(ss, dh);
 	}
