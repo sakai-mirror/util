@@ -38,6 +38,13 @@
       <artifactId>sakai-component-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
+<!-- to be able to access the Sakai component manager -->
+    <dependency>
+      
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-component</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
     <dependency>
       
       <groupId>org.sakaiproject</groupId>
