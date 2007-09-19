@@ -56,7 +56,7 @@ public class EditorConfiguration
 	{
 		Boolean showCitationsButton = Boolean.FALSE;
 		
-		Object component = ComponentManager.get("org.sakaiproject.citations.api.ConfigurationService");
+		Object component = ComponentManager.get("org.sakaiproject.citation.api.ConfigurationService");
 		if(component != null)
 		{
 			try
