@@ -25,6 +25,8 @@ import java.lang.reflect.Method;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.cover.SessionManager;
 
 /**
  * EditorConfiguration is a utility class that provides methods to access
@@ -32,6 +34,8 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
  */
 public class EditorConfiguration 
 {
+	public static final String ATTR_ENABLE_RESOURCE_SEARCH = "org.sakaiproject.util.EditorConfiguration.enableResourceSearch";
+
 	/**
 	 * Access the identifier for the editor currently in use.  This value is
 	 * supplied by the ServerConfigurationService and uniquely identifies a 
@@ -54,25 +58,40 @@ public class EditorConfiguration
 	 */
 	public static boolean enableResourceSearch()
 	{
-		Boolean showCitationsButton = Boolean.FALSE;
+		Session session = SessionManager.getCurrentSession();
+		Boolean showCitationsButton = (Boolean) session.getAttribute(ATTR_ENABLE_RESOURCE_SEARCH);
 		
-		Object component = ComponentManager.get("org.sakaiproject.citation.api.ConfigurationService");
-		if(component != null)
+		if(showCitationsButton == null)
 		{
-			try
+			Object component = ComponentManager.get("org.sakaiproject.citation.api.ConfigurationService");
+			if(component == null)
 			{
-				Method method = component.getClass().getMethod("librarySearchEnabled", new Class[]{});
-				
-				if(method != null)
-				{
-					showCitationsButton = (Boolean) method.invoke(component, null);
-				}
+				// if the service can't be found, return FALSE
+				showCitationsButton = Boolean.FALSE;
 			}
-			catch(Exception e)
+			else
 			{
-				// ignore -- if the service can't be found or the method 
-				// 	can't be invoked, then the button should not be shown
-			} 
+				try
+				{
+					Method method = component.getClass().getMethod("librarySearchEnabled", new Class[]{});
+					
+					if(method == null)
+					{
+						// if the method can't be invoked, return FALSE
+						showCitationsButton = Boolean.FALSE;
+					}
+					else
+					{
+						showCitationsButton = (Boolean) method.invoke(component, null);
+						session.setAttribute(ATTR_ENABLE_RESOURCE_SEARCH, showCitationsButton);
+					}
+				}
+				catch(Exception e)
+				{
+					// if the method can't be invoked, return FALSE
+					showCitationsButton = Boolean.FALSE;
+				} 
+			}
 		}
 		
 		return showCitationsButton.booleanValue();
