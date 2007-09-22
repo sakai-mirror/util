@@ -29,8 +29,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Element;
 
-import org.sakaiproject.component.cover.ServerConfigurationService;
-
 /**
  * FormattedText provides support for user entry of formatted text; the formatted text is HTML. This includes text formatting in user input such as bold, underline, and fonts.
  */
@@ -44,15 +42,7 @@ public class FormattedText
 	 * 
 	 * @link http://www.blooberry.com/indexdot/html/tagindex/all.htm
 	 */
-	private static String[] M_goodTags;
-
-        private static String[] M_archivalGoodTags = {"a", "abbr", "acronym", "address", "b", "big", "blockquote", "br", "center", "cite",
-			"code", "dd", "del", "dir", "div", "dl", "dt", "em", "font", "hr", "h1", "h2", "h3", "h4", "h5", "h6", "i", "ins",
-			"kbd", "li", "marquee", "menu", "nobr", "ol", "p", "pre", "q", "rt", "ruby", "rbc", "rb", "rtc", "rp", "s", "samp",
-			"small", "span", "strike", "strong", "sub", "sup", "tt", "u", "ul", "var", "xmp", "table", "tr", "td", "th", "tbody", 
-			"caption", "thead", "tfoot", "colgroup", "col"};
-
-        private static String[] M_richGoodTags = {"a", "abbr", "acronym", "address", "b", "big", "blockquote", "br", "center", "cite", "code", 
+	private static String[] M_goodTags = {"a", "abbr", "acronym", "address", "b", "big", "blockquote", "br", "center", "cite", "code", 
                         "dd", "del", "dir", "div", "dl", "dt", "em", "font", "hr", "h1", "h2", "h3", "h4", "h5", "h6", "i", "ins",
                         "kbd", "li", "marquee", "menu", "nobr", "noembed", "ol", "p", "pre", "q", "rt", "ruby", "rbc", "rb", "rtc", "rp",
                         "s", "samp", "small", "span", "strike", "strong", "sub", "sup", "tt", "u", "ul", "var", "xmp", "img", "embed",
@@ -72,15 +62,7 @@ public class FormattedText
 	/**
 	 * These evil HTML tags are disallowed when the user inputs formatted text; this protects the system from broken pages as well as Cross-Site Scripting (XSS) attacks.
 	 */
-	private static String[] M_evilTags;
-
-        private static String[] M_archivalEvilTags = { "applet", "base", "body", "bgsound", "button", "col", "colgroup", "comment", "embed",
-			"dfn", "embed", "fieldset", "form", "frame", "frameset", "head", "html", "iframe", "ilayer", "img", "inlineinput",
-			"isindex", "input", "keygen", "label", "layer", "legend", "link", "listing", "map", "meta", "multicol", "nextid",
-			"noembed", "noframes", "nolayer", "noscript", "object", "optgroup", "option", "param", "plaintext", "script", "select",
-			"sound", "spacer", "spell", "submit", "textarea", "title", "wbr" };
-
-        private static String[] M_richEvilTags = { "applet", "base", "body", "bgsound", "button", "col", "colgroup", "comment",  
+	private static String[] M_evilTags = { "applet", "base", "body", "bgsound", "button", "col", "colgroup", "comment",  
 			"dfn", "fieldset", "form", "frame", "frameset", "head", "html", "iframe", "ilayer", "inlineinput",
 			"isindex", "input", "keygen", "label", "layer", "legend", "link", "listing", "map", "meta", "multicol", "nextid",
 			"noframes", "nolayer", "noscript", "optgroup", "option", "param", "plaintext", "script", "select",
@@ -109,17 +91,6 @@ public class FormattedText
 
 	private static void init()
 	{
-               String focus = ServerConfigurationService.getString("tags.focus");
- 
-               if ("archival".equals(focus)) {
-                       M_goodTags = M_archivalGoodTags; 
-                       M_evilTags = M_archivalEvilTags; 
-               }
-               else {  
-                       M_goodTags = M_richGoodTags; 
-                       M_evilTags = M_richEvilTags; 
-               }
-
 		M_evilTagsPatterns = new Pattern[M_evilTags.length];
 		for (int i = 0; i < M_evilTags.length; i++)
 		{
