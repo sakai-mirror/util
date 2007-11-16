@@ -24,6 +24,8 @@ package org.sakaiproject.util;
 import org.sakaiproject.entity.api.Entity;
 
 /**
+ * A Sax entity handler produces an Entity and may have a container.
+ * This interface provides access to those items.
  * @author ieb
  *
  */

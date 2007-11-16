@@ -24,6 +24,13 @@ package org.sakaiproject.util;
 import java.util.Map;
 
 /**
+ * 
+ * StorageUsers that can read using SAX should implement this interface. 
+ * Unfortunately the parse.parse method requires a DefaultHandler which is a concrete class,
+ * so DefaultEntityHandler cant be an interface, and hence we need to extend. So the implementation 
+ * has to be somewhere. To avoid forcing things that dont already depend on util-util to depend on 
+ * util-util the interface is here rather than in db-util or elsewhere. 
+ * 
  * @author ieb
  *
  */

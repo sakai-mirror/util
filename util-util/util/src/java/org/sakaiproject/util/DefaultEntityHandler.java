@@ -30,6 +30,13 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
+ * This class is required by the SAX parser to parse into. Rather than use the ContentHandler interface
+ * this class and the underlying DefautlHandler implements all the required methods of ContentHandler
+ * and others, removing most of the implementation load from those produicing extendsion.
+ * 
+ * DefaultEntityHandlers are create by SAXReaders and consume SAXEvents building an Entity, which is theen
+ * retrieved once parsing is complete with the getEntity() method.
+ * 
  * @author ieb
  */
 public class DefaultEntityHandler extends DefaultHandler implements SAXEntityHandler

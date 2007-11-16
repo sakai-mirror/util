@@ -169,16 +169,36 @@ public class Xml
 	}
 	
 
-	
+	/**
+	 * Process a string of XML using SAX and a default handler
+	 * @param in
+	 * @param dh
+	 * @throws SAXException
+	 * @throws IOException
+	 */
 	public static void processString( String in, DefaultHandler dh ) throws SAXException, IOException {
 		Reader r = new StringReader(in);
 		processReader(r,dh);
 		r.close();
 	}
+	/**
+	 * Process a stream of XML using SAX and a supplied default handler
+	 * @param in
+	 * @param dh
+	 * @throws SAXException
+	 * @throws IOException
+	 */
 	public static void processStream( InputStream in, DefaultHandler dh ) throws SAXException, IOException {
 		processReader(new InputStreamReader(in),dh);
 	}
 	
+	/**
+	 * SAX Process a Reader using the Default handler
+	 * @param in
+	 * @param dh
+	 * @throws SAXException
+	 * @throws IOException
+	 */
 	public static void processReader(Reader in, DefaultHandler dh) throws SAXException,
 			IOException
 	{
