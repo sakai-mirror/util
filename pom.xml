@@ -11,6 +11,14 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>util-base</artifactId>
   <packaging>pom</packaging>
+  
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/util/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/util/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/util/trunk</url>
+  </scm>
+  
+
   <modules>
     <module>util-api/api</module>
     <module>util-api/hbm</module>
