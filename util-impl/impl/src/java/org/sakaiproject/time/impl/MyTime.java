@@ -30,7 +30,6 @@ import java.util.TimeZone;
 
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
-import org.sakaiproject.time.cover.TimeService;
 
 /**
  * <p>
@@ -45,20 +44,23 @@ public class MyTime implements Time
 	/** The milliseconds since... same as Date */
 	protected long m_millisecondsSince = 0;
 
+	private BasicTimeService timeService;
+
 	/**
 	 * construct from a string, in our format, GMT values
 	 * 
 	 * @param str
 	 *        time format string
 	 */
-	public MyTime(String str)
+	public MyTime(BasicTimeService timeService, String str)
 	{
+		this.timeService = timeService;
 		// use formatter A: yyyyMMddHHmmssSSS
 		Date d = null;
-		synchronized (((BasicTimeService) TimeService.getInstance()).M_fmtA)
+		synchronized (timeService.M_fmtA)
 		{
 			ParsePosition pos = new ParsePosition(0);
-			d = ((BasicTimeService) TimeService.getInstance()).M_fmtA.parse(str, pos);
+			d = timeService.M_fmtA.parse(str, pos);
 		}
 		m_millisecondsSince = d.getTime();
 	}
@@ -66,8 +68,9 @@ public class MyTime implements Time
 	/**
 	 * construct as now
 	 */
-	public MyTime()
+	public MyTime(BasicTimeService timeService)
 	{
+		this.timeService = timeService;
 		m_millisecondsSince = System.currentTimeMillis();
 	}
 
@@ -77,8 +80,9 @@ public class MyTime implements Time
 	 * @param l
 	 *        time value in ms since...
 	 */
-	public MyTime(long l)
+	public MyTime(BasicTimeService timeService, long l)
 	{
+		this.timeService = timeService;
 		m_millisecondsSince = l;
 	}
 
@@ -102,9 +106,10 @@ public class MyTime implements Time
 	 * @param millisecond
 	 *        millisecond in second (0..999)
 	 */
-	public MyTime(TimeZone zone, int year, int month, int day, int hour, int minute, int second, int millisecond)
+	public MyTime(BasicTimeService timeService, TimeZone zone, int year, int month, int day, int hour, int minute, int second, int millisecond)
 	{
-		GregorianCalendar cal = ((BasicTimeService) TimeService.getInstance()).getCalendar(zone, year, month - 1, day, hour,
+		this.timeService = timeService;
+		GregorianCalendar cal = timeService.getCalendar(zone, year, month - 1, day, hour,
 				minute, second, millisecond);
 		m_millisecondsSince = cal.getTimeInMillis();
 	}
@@ -117,9 +122,10 @@ public class MyTime implements Time
 	 * @param tb
 	 *        The TimeBreakdown with the values.
 	 */
-	public MyTime(TimeZone zone, TimeBreakdown tb)
+	public MyTime(BasicTimeService timeService, TimeZone zone, TimeBreakdown tb)
 	{
-		GregorianCalendar cal = ((BasicTimeService) TimeService.getInstance()).getCalendar(zone, tb.getYear(), tb.getMonth() - 1,
+		this.timeService = timeService;
+		GregorianCalendar cal = timeService.getCalendar(zone, tb.getYear(), tb.getMonth() - 1,
 				tb.getDay(), tb.getHour(), tb.getMin(), tb.getSec(), tb.getMs());
 		m_millisecondsSince = cal.getTimeInMillis();
 	}
@@ -129,7 +135,7 @@ public class MyTime implements Time
 	 */
 	public Object clone()
 	{
-		return new MyTime(m_millisecondsSince);
+		return new MyTime(timeService,m_millisecondsSince);
 	}
 
 	/**
@@ -138,10 +144,10 @@ public class MyTime implements Time
 	public String toString()
 	{
 		String s = null;
-		synchronized (((BasicTimeService) TimeService.getInstance()).M_fmtA)
+		synchronized (timeService.M_fmtA)
 		{
 			// format
-			s = ((BasicTimeService) TimeService.getInstance()).M_fmtA.format(new Date(getTime()));
+			s = timeService.M_fmtA.format(new Date(getTime()));
 		}
 
 		return s;
@@ -153,10 +159,10 @@ public class MyTime implements Time
 	public String toStringSql()
 	{
 		String s = null;
-		synchronized (((BasicTimeService) TimeService.getInstance()).M_fmtE)
+		synchronized (timeService.M_fmtE)
 		{
 			// format
-			s = ((BasicTimeService) TimeService.getInstance()).M_fmtE.format(new Date(getTime()));
+			s = timeService.M_fmtE.format(new Date(getTime()));
 		}
 
 		return s;
@@ -168,8 +174,7 @@ public class MyTime implements Time
 	public String toStringLocal()
 	{
 		String s = null;
-		DateFormat fmtAl = ((BasicTimeService) TimeService.getInstance()).getLocalTzFormat(((BasicTimeService) TimeService
-				.getInstance()).getUserTimezoneLocale()).M_fmtAl;
+		DateFormat fmtAl = timeService.getLocalTzFormat(timeService.getUserTimezoneLocale()).M_fmtAl;
 		synchronized (fmtAl)
 		{
 			// format
@@ -185,10 +190,10 @@ public class MyTime implements Time
 	public String toStringGmtFull()
 	{
 		String s = null;
-		synchronized (((BasicTimeService) TimeService.getInstance()).M_fmtB)
+		synchronized (timeService.M_fmtB)
 		{
 			// format
-			s = ((BasicTimeService) TimeService.getInstance()).M_fmtB.format(new Date(getTime()));
+			s = timeService.M_fmtB.format(new Date(getTime()));
 		}
 
 		// lower the case of AM/PM
@@ -203,8 +208,7 @@ public class MyTime implements Time
 	public String toStringLocalFull()
 	{
 		String s = null;
-		DateFormat fmtBl = ((BasicTimeService) TimeService.getInstance()).getLocalTzFormat(((BasicTimeService) TimeService
-				.getInstance()).getUserTimezoneLocale()).M_fmtBl;
+		DateFormat fmtBl = timeService.getLocalTzFormat(timeService.getUserTimezoneLocale()).M_fmtBl;
 		synchronized (fmtBl)
 		{
 			// format
@@ -223,8 +227,7 @@ public class MyTime implements Time
 	public String toStringLocalFullZ()
 	{
 		String s = null;
-		DateFormat fmtBlz = ((BasicTimeService) TimeService.getInstance()).getLocalTzFormat(((BasicTimeService) TimeService
-				.getInstance()).getUserTimezoneLocale()).M_fmtBlz;
+		DateFormat fmtBlz = timeService.getLocalTzFormat(timeService.getUserTimezoneLocale()).M_fmtBlz;
 		synchronized (fmtBlz)
 		{
 			// format
@@ -240,10 +243,10 @@ public class MyTime implements Time
 	public String toStringGmtShort()
 	{
 		String s = null;
-		synchronized (((BasicTimeService) TimeService.getInstance()).M_fmtC)
+		synchronized (timeService.M_fmtC)
 		{
 			// format
-			s = ((BasicTimeService) TimeService.getInstance()).M_fmtC.format(new Date(getTime()));
+			s = timeService.M_fmtC.format(new Date(getTime()));
 		}
 
 		// lower the case of AM/PM
@@ -258,8 +261,7 @@ public class MyTime implements Time
 	public String toStringLocalShort()
 	{
 		String s = null;
-		DateFormat fmtCl = ((BasicTimeService) TimeService.getInstance()).getLocalTzFormat(((BasicTimeService) TimeService
-				.getInstance()).getUserTimezoneLocale()).M_fmtCl;
+		DateFormat fmtCl = timeService.getLocalTzFormat(timeService.getUserTimezoneLocale()).M_fmtCl;
 		synchronized (fmtCl)
 		{
 			// format
@@ -278,10 +280,10 @@ public class MyTime implements Time
 	public String toStringGmtTime()
 	{
 		String s = null;
-		synchronized (((BasicTimeService) TimeService.getInstance()).M_fmtC)
+		synchronized (timeService.M_fmtC)
 		{
 			// format
-			s = ((BasicTimeService) TimeService.getInstance()).M_fmtC.format(new Date(getTime()));
+			s = timeService.M_fmtC.format(new Date(getTime()));
 		}
 
 		// lower the case of AM/PM
@@ -296,8 +298,7 @@ public class MyTime implements Time
 	public String toStringLocalTime()
 	{
 		String s = null;
-		DateFormat fmtCl = ((BasicTimeService) TimeService.getInstance()).getLocalTzFormat(((BasicTimeService) TimeService
-				.getInstance()).getUserTimezoneLocale()).M_fmtCl;
+		DateFormat fmtCl = timeService.getLocalTzFormat(timeService.getUserTimezoneLocale()).M_fmtCl;
 		synchronized (fmtCl)
 		{
 			// format
@@ -317,8 +318,7 @@ public class MyTime implements Time
 	{
 
 		String s = null;
-		DateFormat fmtClz = ((BasicTimeService) TimeService.getInstance()).getLocalTzFormat(((BasicTimeService) TimeService
-				.getInstance()).getUserTimezoneLocale()).M_fmtClz;
+		DateFormat fmtClz = timeService.getLocalTzFormat(timeService.getUserTimezoneLocale()).M_fmtClz;
 
 		synchronized (fmtClz)
 		{
@@ -334,8 +334,7 @@ public class MyTime implements Time
 	public String toStringLocalTime24()
 	{
 		String s = null;
-		DateFormat fmtFl = ((BasicTimeService) TimeService.getInstance()).getLocalTzFormat(((BasicTimeService) TimeService
-				.getInstance()).getUserTimezoneLocale()).M_fmtFl;
+		DateFormat fmtFl = timeService.getLocalTzFormat(timeService.getUserTimezoneLocale()).M_fmtFl;
 		synchronized (fmtFl)
 		{
 			// format
@@ -351,10 +350,10 @@ public class MyTime implements Time
 	public String toStringGmtDate()
 	{
 		String s = null;
-		synchronized (((BasicTimeService) TimeService.getInstance()).M_fmtD)
+		synchronized (timeService.M_fmtD)
 		{
 			// format
-			s = ((BasicTimeService) TimeService.getInstance()).M_fmtD.format(new Date(getTime()));
+			s = timeService.M_fmtD.format(new Date(getTime()));
 		}
 
 		return s;
@@ -366,8 +365,7 @@ public class MyTime implements Time
 	public String toStringLocalDate()
 	{
 		String s = null;
-		DateFormat fmtDl = ((BasicTimeService) TimeService.getInstance()).getLocalTzFormat(((BasicTimeService) TimeService
-				.getInstance()).getUserTimezoneLocale()).M_fmtDl;
+		DateFormat fmtDl = timeService.getLocalTzFormat(timeService.getUserTimezoneLocale()).M_fmtDl;
 		synchronized (fmtDl)
 		{
 			// format
@@ -383,8 +381,7 @@ public class MyTime implements Time
 	public String toStringLocalShortDate()
 	{
 		String s = null;
-		DateFormat fmtD2 = ((BasicTimeService) TimeService.getInstance()).getLocalTzFormat(((BasicTimeService) TimeService
-				.getInstance()).getUserTimezoneLocale()).M_fmtD2;
+		DateFormat fmtD2 = timeService.getLocalTzFormat(timeService.getUserTimezoneLocale()).M_fmtD2;
 		synchronized (fmtD2)
 		{
 			// format
@@ -413,10 +410,10 @@ public class MyTime implements Time
 	public String toStringFilePath()
 	{
 		String s = null;
-		synchronized (((BasicTimeService) TimeService.getInstance()).M_fmtG)
+		synchronized (timeService.M_fmtG)
 		{
 			// format
-			s = ((BasicTimeService) TimeService.getInstance()).M_fmtG.format(new Date(getTime()));
+			s = timeService.M_fmtG.format(new Date(getTime()));
 		}
 
 		return s;
@@ -503,7 +500,7 @@ public class MyTime implements Time
 	public TimeBreakdown breakdownGmt()
 	{
 		String s = toString();
-		TimeBreakdown b = ((BasicTimeService) TimeService.getInstance()).newTimeBreakdown(Integer.parseInt(s.substring(0, 4)),
+		TimeBreakdown b = timeService.newTimeBreakdown(Integer.parseInt(s.substring(0, 4)),
 				Integer.parseInt(s.substring(4, 6)), Integer.parseInt(s.substring(6, 8)), Integer.parseInt(s.substring(8, 10)),
 				Integer.parseInt(s.substring(10, 12)), Integer.parseInt(s.substring(12, 14)), Integer.parseInt(s.substring(14)));
 
@@ -516,7 +513,7 @@ public class MyTime implements Time
 	public TimeBreakdown breakdownLocal()
 	{
 		String s = toStringLocal();
-		TimeBreakdown b = ((BasicTimeService) TimeService.getInstance()).newTimeBreakdown(Integer.parseInt(s.substring(0, 4)),
+		TimeBreakdown b = timeService.newTimeBreakdown(Integer.parseInt(s.substring(0, 4)),
 				Integer.parseInt(s.substring(4, 6)), Integer.parseInt(s.substring(6, 8)), Integer.parseInt(s.substring(8, 10)),
 				Integer.parseInt(s.substring(10, 12)), Integer.parseInt(s.substring(12, 14)), Integer.parseInt(s.substring(14)));
 
