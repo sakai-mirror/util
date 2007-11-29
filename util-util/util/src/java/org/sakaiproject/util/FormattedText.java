@@ -197,8 +197,8 @@ public class FormattedText
 			Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
 	/** Matches href attribute */
-	private static Pattern M_patternHref = Pattern.compile("href\\s*=\\s*\"?\\s*[\\S ]+(\\s|>)", Pattern.CASE_INSENSITIVE
-			| Pattern.DOTALL);
+	private static Pattern M_patternHref = Pattern.compile("\\shref\\s*=\\s*(\".*?\"|'.*?')",
+			Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
 	/**
 	 * Processes and validates user-entered HTML received from the web browser (from the WYSIWYG editor). Validates that the user input follows the Sakai formatted text specification; disallows dangerous stuff such as &lt;SCRIPT&gt; JavaScript tags.
