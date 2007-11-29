@@ -171,6 +171,19 @@ public class FormattedText
 	private static Pattern M_patternHref = Pattern.compile("\\shref\\s*=\\s*(\".*?\"|'.*?')",
 			Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
+		/**
+		* @see #processFormattedText(String, StringBuilder)
+		* @deprecated since Nov 2007, use {@link #processFormattedText(String, StringBuilder)} instead
+		*/
+		public static String processFormattedText(final String strFromBrowser,
+			StringBuffer errorMessages)	{
+			StringBuilder sb = new StringBuilder(errorMessages.toString());
+			String fixed = processFormattedText(strFromBrowser, sb);
+			errorMessages.setLength(0);
+			errorMessages.append(sb.toString());
+			return fixed;
+		}
+		
 	/**
 	 * Processes and validates user-entered HTML received from the web browser (from the WYSIWYG editor). Validates that the user input follows the Sakai formatted text specification; disallows dangerous stuff such as &lt;SCRIPT&gt; JavaScript tags.
 	 * Encodes the text according to the formatted text specification, for the rest of the system to use.
