@@ -156,7 +156,8 @@ public class ThreadLocalComponent implements ThreadLocalManager
 		}
 		
 		// unbind all objects that need it
-		for ( Object o : bindings.values() ) {
+		Object[] oa = bindings.values().toArray(); // make the code re-entrant
+		for ( Object o : oa ) {
 			if ( o instanceof ThreadBound ) {
 				unbind((ThreadBound)o);
 			}
