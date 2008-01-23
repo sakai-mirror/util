@@ -275,8 +275,9 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		}
 		catch (MissingResourceException e)
 		{
-			M_log.warn("Missing key: " + key);
-			return "[missing key: " + key + "]";
+			M_log.warn("bundle \'"+baseName +"\'  missing key: \'" + key 
+						+ "\'  from: " + e.getStackTrace()[3] ); // 3-deep gets us out of ResourceLoader
+			return "[missing key: " + baseName + " " + key + "]";
 		}
 	}
 
