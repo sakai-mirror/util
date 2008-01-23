@@ -1,9 +1,9 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/trunk/sakai/admin-tools/su/src/java/org/sakaiproject/tool/su/SuTool.java $
- * $Id: SuTool.java 5970 2006-02-15 03:07:19Z ggolden@umich.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007, 2008 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -109,10 +109,17 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
     ** @param key maps to locale-specific pattern in properties file
     ** @param args parameters to format and insert according to above pattern
     ** @return  formatted message
+    ** 
+    ** @author Sugiura, Tatsuki (University of Nagoya)
+    ** @author Jean-Francois Leveque (Universite Pierre et Marie Curie - Paris 6)
+    **
     **/
 	public String getFormattedMessage(String key, Object[] args)
 	{
 		String pattern = (String) get(key);
+		M_log.debug("getFormattedMessage(key,args) bundle name=" +
+			this.baseName + ", locale=" + getLocale().toString() +
+			", key=" + key + ", pattern=" + pattern);
 		return (new MessageFormat(pattern, getLocale())).format(args, new StringBuffer(), null).toString();
 	}
 
@@ -266,12 +273,22 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	 * @param key
 	 *        property key to look up in current ResourceBundle * *
 	 * @return String value for specified property key
+	 *
+	 * @author Sugiura, Tatsuki (University of Nagoya)
+	 * @author Jean-Francois Leveque (Universite Pierre et Marie Curie - Paris 6)
+	 *
+
 	 */
 	public String getString(String key)
 	{
 		try
 		{
-			return getBundle().getString(key);
+			String value = getBundle().getString(key);
+			M_log.debug("getString(key) bundle name=" + this.baseName +
+					", locale=" + getLocale().toString() + ", key=" +
+					key + ", value=" + value);
+			return value;
+
 		}
 		catch (MissingResourceException e)
 		{
