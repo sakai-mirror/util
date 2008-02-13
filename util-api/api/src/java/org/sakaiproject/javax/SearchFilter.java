@@ -42,5 +42,5 @@ public interface SearchFilter extends Filter
 	 * 
 	 * @return the search string for this filter.
 	 */
-	boolean getSearchString();
+	String getSearchString();
 }
