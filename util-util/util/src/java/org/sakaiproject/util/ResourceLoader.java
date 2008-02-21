@@ -53,6 +53,8 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	protected Hashtable bundles = new Hashtable();
 	
 	protected String userId = null;
+	
+	protected String LOCALE_SESSION_KEY = "sakai.locale.";
 
 	/**
 	 * Default constructor (may be used to find user's default locale 
@@ -170,7 +172,8 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 			 
 			 else
 			 {
-				 loc = (Locale) SessionManager.getCurrentSession().getAttribute("locale");
+				 loc = (Locale) SessionManager.getCurrentSession().getAttribute(LOCALE_SESSION_KEY+SessionManager.getCurrentSessionUserId());
+				 
 				 // The locale is not in the session. 
 				 // Look for it and set in session
 				 if (loc == null) 
@@ -231,7 +234,7 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 			} // ignore and continue
 		}
 			  
-		// Second: find locale from user session, if available
+		// Second: find locale from user browser session, if available
 		if (loc == null)
 		{
 			try
@@ -258,7 +261,9 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		//Write the sakai locale in the session	
 		try 
 		{
-		  SessionManager.getCurrentSession().setAttribute("locale",loc);
+			String sessionUser = SessionManager.getCurrentSessionUserId();
+			if ( sessionUser != null )
+				SessionManager.getCurrentSession().setAttribute(LOCALE_SESSION_KEY+sessionUser,loc);
 		}
 		catch (Exception e) 
 		{
