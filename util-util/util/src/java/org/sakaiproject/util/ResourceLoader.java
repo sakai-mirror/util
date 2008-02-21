@@ -162,11 +162,20 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		 Locale loc = null;
 		 try
 		 {
-			 loc = (Locale) SessionManager.getCurrentSession().getAttribute("locale");
-			 // The locale is not in the session. 
-			 // Look for it and set in session
-			 if (loc == null) 
-				 loc = setContextLocale(null);
+			 // check if locale is requested for specific user
+			 if ( userId != null )
+			 {
+				 loc = getLocale( userId );
+			 }
+			 
+			 else
+			 {
+				 loc = (Locale) SessionManager.getCurrentSession().getAttribute("locale");
+				 // The locale is not in the session. 
+				 // Look for it and set in session
+				 if (loc == null) 
+					 loc = setContextLocale(null);
+			 }
 		 }
 		 catch(NullPointerException e) 
 		 {
@@ -178,6 +187,28 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		 return loc;
 	}
 
+	/**
+	 ** Get user's preferred locale
+	 ***/
+	public Locale getLocale( String userId )
+	{
+		Locale loc = null;
+		Preferences prefs = PreferencesService.getPreferences(userId);
+		ResourceProperties locProps = prefs.getProperties(APPLICATION_ID);
+		String localeString = locProps.getProperty(LOCALE_KEY);
+		
+		if (localeString != null)
+		{
+			String[] locValues = localeString.split("_");
+			if (locValues.length > 1)
+				loc = new Locale(locValues[0], locValues[1]); // language, country
+			else if (locValues.length == 1) 
+				loc = new Locale(locValues[0]); // just language
+		}
+		
+		return loc;
+	}
+	
 	/**
 	 ** Sets user's prefered locale in context
 	 **	 First: sets  locale from Sakai user preferences, if available
@@ -193,17 +224,7 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		{
 			try
 			{
-				String userId = SessionManager.getCurrentSessionUserId();
-				Preferences prefs = PreferencesService.getPreferences(userId);
-				ResourceProperties locProps = prefs.getProperties(APPLICATION_ID);
-					 String localeString = locProps.getProperty(LOCALE_KEY);
-				if (localeString != null)
-				{
-					String[] locValues = localeString.split("_");
-					if (locValues.length > 1)
-						loc = new Locale(locValues[0], locValues[1]); // language, country
-					else if (locValues.length == 1) loc = new Locale(locValues[0]); // just language
-				}
+				loc = getLocale( SessionManager.getCurrentSessionUserId() );
 			}
 			catch (Exception e)
 			{
