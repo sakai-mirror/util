@@ -20,8 +20,6 @@ import org.springframework.web.context.WebApplicationContext;
  */
 public interface WebappResourceManager {
    
-   java.net.URL getResource(java.lang.String s) throws java.net.MalformedURLException;
-   
    java.io.InputStream getResourceAsStream(java.lang.String s);
 
    void setWebApplicationContext(WebApplicationContext webApplicationContext);

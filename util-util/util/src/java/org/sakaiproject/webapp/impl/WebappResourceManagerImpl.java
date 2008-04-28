@@ -43,10 +43,6 @@ public class WebappResourceManagerImpl implements WebappResourceManager, Applica
       }
    }
 
-   public URL getResource(String s) throws MalformedURLException {
-      return getWebApplicationContext().getServletContext().getResource(s);
-   }
-
    public InputStream getResourceAsStream(String s) {
       return getWebApplicationContext().getServletContext().getResourceAsStream(s);
    }
