@@ -35,7 +35,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.i18n.InternationalizedMessages;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.cover.PreferencesService;
 
@@ -46,6 +46,9 @@ import org.sakaiproject.user.cover.PreferencesService;
  */
 public class ResourceLoader extends DummyMap implements InternationalizedMessages
 {
+	
+	private SessionManager sessionManager;
+	
 	protected static Log M_log = LogFactory.getLog(ResourceLoader.class);
 
 	protected String baseName = null;
@@ -73,6 +76,11 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	public ResourceLoader(String name)
 	{
 		this.baseName = name;
+	}
+	
+	public ResourceLoader(String name, SessionManager sessionManager) {
+		this(name);
+		this.sessionManager = sessionManager;
 	}
 
 	/**
@@ -172,7 +180,7 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 			 
 			 else
 			 {
-				 loc = (Locale) SessionManager.getCurrentSession().getAttribute(LOCALE_SESSION_KEY+SessionManager.getCurrentSessionUserId());
+				 loc = (Locale) sessionManager.getCurrentSession().getAttribute(LOCALE_SESSION_KEY+sessionManager.getCurrentSessionUserId());
 				 
 				 // The locale is not in the session. 
 				 // Look for it and set in session
@@ -227,7 +235,7 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		{
 			try
 			{
-				loc = getLocale( SessionManager.getCurrentSessionUserId() );
+				loc = getLocale( sessionManager.getCurrentSessionUserId() );
 			}
 			catch (Exception e)
 			{
@@ -239,7 +247,7 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		{
 			try
 			{
-				loc = (Locale) SessionManager.getCurrentSession().getAttribute("locale");
+				loc = (Locale) sessionManager.getCurrentSession().getAttribute("locale");
 			}
 			catch (NullPointerException e)
 			{
@@ -261,9 +269,9 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		//Write the sakai locale in the session	
 		try 
 		{
-			String sessionUser = SessionManager.getCurrentSessionUserId();
+			String sessionUser = sessionManager.getCurrentSessionUserId();
 			if ( sessionUser != null )
-				SessionManager.getCurrentSession().setAttribute(LOCALE_SESSION_KEY+sessionUser,loc);
+				sessionManager.getCurrentSession().setAttribute(LOCALE_SESSION_KEY+sessionUser,loc);
 		}
 		catch (Exception e) 
 		{
@@ -452,6 +460,14 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	{
 		if (bundle == null) throw new NullPointerException();
 		this.bundles.put(loc, bundle);
+	}
+
+	public SessionManager getSessionManager() {
+		return sessionManager;
+	}
+
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
 	}
 }
 

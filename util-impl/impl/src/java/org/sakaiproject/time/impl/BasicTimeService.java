@@ -25,21 +25,21 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 import java.util.Hashtable;
-import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
+import java.util.Locale;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.user.cover.PreferencesService;
-import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.user.api.PreferencesService;
 
 /**
  * <p>
@@ -53,6 +53,9 @@ public class BasicTimeService implements TimeService
 
 	/** The time zone for our GMT times. */
 	protected TimeZone M_tz = null;
+	
+	private SessionManager sessionManager;
+	private PreferencesService preferencesService;
 
 	/**
 	 * a calendar to clone for GMT time construction
@@ -139,14 +142,14 @@ public class BasicTimeService implements TimeService
 	protected String[] getUserTimezoneLocale()
 	{
 		// Check if we already cached this user's timezone
-		String userId = SessionManager.getCurrentSessionUserId();
+		String userId = sessionManager.getCurrentSessionUserId();
 		if (userId == null) return M_tz_locale_default;
 
 		String[] timeZoneLocale = (String[]) M_userTzMap.get(userId);
 		if (timeZoneLocale != null) return timeZoneLocale;
 
 		// Otherwise, get the user's preferred time zone
-		Preferences prefs = PreferencesService.getPreferences(userId);
+		Preferences prefs = preferencesService.getPreferences(userId);
 		ResourceProperties tzProps = prefs.getProperties(TimeService.APPLICATION_ID);
 		String timeZone = tzProps.getProperty(TimeService.TIMEZONE_KEY);
 
@@ -200,7 +203,7 @@ public class BasicTimeService implements TimeService
 	 */
 	public Time newTimeGmt(String value)
 	{
-		return new MyTime(this,value);
+		return new MyTime(this, value);
 	}
 
 	/**
@@ -208,7 +211,7 @@ public class BasicTimeService implements TimeService
 	 */
 	public Time newTime(long value)
 	{
-		return new MyTime(this,value);
+		return new MyTime(this, value);
 	}
 
 	/**
@@ -216,7 +219,7 @@ public class BasicTimeService implements TimeService
 	 */
 	public Time newTime(GregorianCalendar cal)
 	{
-		return new MyTime(this,cal.getTimeInMillis());
+		return new MyTime(this, cal.getTimeInMillis());
 	}
 
 	/**
@@ -224,7 +227,7 @@ public class BasicTimeService implements TimeService
 	 */
 	public Time newTimeGmt(int year, int month, int day, int hour, int minute, int second, int millisecond)
 	{
-		return new MyTime(this,M_tz, year, month, day, hour, minute, second, millisecond);
+		return new MyTime(this, M_tz, year, month, day, hour, minute, second, millisecond);
 	}
 
 	/**
@@ -232,7 +235,7 @@ public class BasicTimeService implements TimeService
 	 */
 	public Time newTimeGmt(TimeBreakdown breakdown)
 	{
-		return new MyTime(this,M_tz, breakdown);
+		return new MyTime(this, M_tz, breakdown);
 	}
 
 	/**
@@ -241,7 +244,7 @@ public class BasicTimeService implements TimeService
 	public Time newTimeLocal(int year, int month, int day, int hour, int minute, int second, int millisecond)
 	{
 		TimeZone tz_local = getLocalTzFormat(getUserTimezoneLocale()).M_tz_local;
-		return new MyTime(this,tz_local, year, month, day, hour, minute, second, millisecond);
+		return new MyTime(this, tz_local, year, month, day, hour, minute, second, millisecond);
 	}
 
 	/**
@@ -250,7 +253,7 @@ public class BasicTimeService implements TimeService
 	public Time newTimeLocal(TimeBreakdown breakdown)
 	{
 		TimeZone tz_local = getLocalTzFormat(getUserTimezoneLocale()).M_tz_local;
-		return new MyTime(this,tz_local, breakdown);
+		return new MyTime(this, tz_local, breakdown);
 	}
 
 	/**
@@ -1209,5 +1212,21 @@ public class BasicTimeService implements TimeService
 		{
 			year = i;
 		}
+	}
+
+	public SessionManager getSessionManager() {
+		return sessionManager;
+	}
+
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
+	}
+
+	public PreferencesService getPreferencesService() {
+		return preferencesService;
+	}
+
+	public void setPreferencesService(PreferencesService preferenceService) {
+		this.preferencesService = preferenceService;
 	}
 }
