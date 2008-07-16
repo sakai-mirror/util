@@ -1,34 +1,50 @@
-/**********************************************************************************
- * $URL$
+/**
  * $Id$
- ***********************************************************************************
+ * $URL$
+ * Searcher.java - entity-broker - Apr 8, 2008 11:50:18 AM - azeckoski
+ **************************************************************************
+ * Copyright (c) 2008 Aaron Zeckoski
+ * Licensed under the Apache License, Version 2
+ * 
+ * A copy of the Apache License, Version 2 has been included in this 
+ * distribution and is available at: http://www.apache.org/licenses/LICENSE-2.0.txt
  *
- * Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
- * 
- * Licensed under the Educational Community License, Version 1.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at
- * 
- *      http://www.opensource.org/licenses/ecl1.php
- * 
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License.
- *
- **********************************************************************************/
+ * Aaron Zeckoski (azeckoski@gmail.com) (aaronz@vt.edu) (aaron@caret.cam.ac.uk)
+ */
 
 package org.sakaiproject.javax;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-public class Query {
-
-   public final boolean CONJUNCTION_AND = true;
-   public final boolean CONJUNCTION_OR  = false;
+/**
+ * This is a simple class which allows the passing of a set of search parameters in a nice way<br/>
+ * Example usage:<br/>
+ * <code>Search s1 = new Search("title", curTitle); // search where title equals value of curTitle</code><br/>
+ * <code>Search s2 = new Search("title", curTitle, Restriction.NOT_EQUALS); // search where title not equals value of curTitle</code><br/>
+ * <code>Search s2 = new Search(<br/>
+ *    new Restriction("title", curTitle),<br/> 
+ *    new Order("title")<br/>
+ * ); // search where title equals value of curTitle and order is by title ascending</code><br/>
+ * <br/>
+ * Most searches can be modeled this way fairly easily. There are many constructors to make
+ * it easy for a developer to write the search they want inside the search constructor.<br/>
+ * There are also some methods to allow easy construction of searches in multiple steps:
+ * {@link #addOrder(Order)} and {@link #addRestriction(Restriction)} allow restrictions and orders
+ * to be added after the search was constructed, they will correctly handle duplicate values as well.<br/>
+ * <br/>
+ * There is also an option to pass a search string as well which can contain
+ * formatted text to be interpreted by whatever is using the search object<br/>
+ * <br/>
+ * Finally, there are a few methods to make it easier to unpack and work with the search object:
+ * {@link #isEmpty()} and {@link #getRestrictionByProperty(String)} and {@link #getRestrictionsProperties()}
+ * make it easier to get the restriction information out of the search object
+ * 
+ * @author Aaron Zeckoski (aaronz@caret.cam.ac.uk)
+ */
+public class Search {
 
    /**
     * the index of the first persisted result object to be retrieved (numbered from 0)
@@ -55,51 +71,73 @@ public class Query {
    /**
     * if true then all restrictions are run using AND, if false then all restrictions are run using OR
     */
-   private boolean conjunction = true;
-   public void setConjunction(boolean conjunction) {
-      this.conjunction = conjunction;
-   }
+   public boolean conjunction = true;
+   /**
+    * if true then all restrictions are run using AND, if false then all restrictions are run using OR
+    */
    public boolean isConjunction() {
       return conjunction;
    }
-
-   /**
-    * Indicates whether this is a "search" Query - if this is not null, 
-    * it is a search-style query.
-    */
-   private String searchString = null;
-   public void setSearchString(String newSearch)
-   {
-	searchString = newSearch;
-   }
-   public String getSearchString()
-   {
-	return searchString;
+   public void setConjunction(boolean conjunction) {
+      this.conjunction = conjunction;
    }
 
    /**
-    * Restrictions define limitations on the results of a query, 
-    * e.g. property A > 100 or property B = 'jump'<br/> You
+    * Restrictions define limitations on the results of a search, e.g. propertyA > 100 or property B = 'jump'<br/> You
     * can add as many restrictions as you like and they will be applied in the array order
     */
    private Restriction[] restrictions = new Restriction[] {};
-   public void setRestriction(Restriction[] newRestrictions) {
-      restrictions = newRestrictions;
-   }
+   /**
+    * Restrictions define limitations on the results of a search, e.g. propertyA > 100 or property B = 'jump'<br/> You
+    * can add as many restrictions as you like and they will be applied in the array order
+    */
    public Restriction[] getRestrictions() {
       return restrictions;
    }
+   public void setRestrictions(Restriction[] restrictions) {
+      this.restrictions = restrictions;
+   }
 
    /**
-    * Orders define the order of the returned results of a query, You can add as many orders as you like and they will
+    * Orders define the order of the returned results of a search, You can add as many orders as you like and they will
     * be applied in the array order
     */
    private Order[] orders = new Order[] {};
-   public void setOrders(Order[] newOrders) {
-      orders = newOrders;
-   }
+   /**
+    * Orders define the order of the returned results of a search, You can add as many orders as you like and they will
+    * be applied in the array order
+    */
    public Order[] getOrders() {
       return orders;
+   }
+   public void setOrders(Order[] orders) {
+      this.orders = orders;
+   }
+
+   /**
+    * Defines a search query string which will be interpreted into search params,
+    * If not null this indicates that this is a string based "search"<br/>
+    * The search string is just text - there is no required structure nor any modifiers. It is a freeform string.<br/>
+    * Effectively the semantics are that it can be implemented in a relational database using 
+    * like clauses for the relevant text fields - or perhaps just submitted to lucene and see which entities match.<br/>
+    * If this is being sent to lucene - things like order, and restrictions might actually be added to the 
+    * lucene query in addition to the simple search string.
+    */
+   private String queryString = null;
+   /**
+    * Defines a search query string which will be interpreted into search params,
+    * If not null this indicates that this is a string based "search"<br/>
+    * The search string is just text - there is no required structure nor any modifiers. It is a freeform string.<br/>
+    * Effectively the semantics are that it can be implemented in a relational database using 
+    * like clauses for the relevant text fields - or perhaps just submitted to lucene and see which entities match.<br/>
+    * If this is being sent to lucene - things like order, and restrictions might actually be added to the 
+    * lucene query in addition to the simple search string.
+    */
+   public String getQueryString() {
+      return queryString;
+   }
+   public void setQueryString(String queryString) {
+      this.queryString = queryString;
    }
 
 
@@ -107,48 +145,43 @@ public class Query {
 
    /**
     * Empty constructor, 
-    * if nothing is changed then this indicates that the query should return
+    * if nothing is changed then this indicates that the search should return
     * all items in default order
     */
-   public Query() {}
+   public Search() {}
 
    /**
-    * Copy constructor.
+    * Copy constructor<br/>
+    * Use this create a duplicate of a search object
     */
-   public Query(Query query) {
-System.out.println("In the Copy Constructor!");
-      start = query.getStart();
-      limit = query.getLimit();
-      conjunction = query.isConjunction();
-      searchString = query.getSearchString();
-      restrictions = query.getRestrictions();
-      orders = query.getOrders();
+   public Search(Search search) {
+      copy(search, this);
    }
 
    /**
-    * Do a simple query of a search string 
-    * 
-    * @param string
-    *           The String to search for
+    * Do a search using a query string<br/>
+    * @param queryString a search query string,
+    * can be combined with other parts of the search object
+    * @see #queryString
     */
-   public Query(String newSearch) {
-      searchString = newSearch;
+   public Search(String queryString) {
+      this.queryString = queryString;
    }
 
    /**
-    * Do a simple query of a single property which must equal a single value
+    * Do a simple search of a single property which must equal a single value
     * 
     * @param property
     *           the name of the field (property) in the persisted object
     * @param value
     *           the value of the property (can be an array of items)
     */
-   public Query(String property, Object value) {
+   public Search(String property, Object value) {
       restrictions = new Restriction[] { new Restriction(property, value) };
    }
 
    /**
-    * Do a simple query of a single property with a single type of comparison
+    * Do a simple search of a single property with a single type of comparison
     * 
     * @param property
     *           the name of the field (property) in the persisted object
@@ -157,17 +190,17 @@ System.out.println("In the Copy Constructor!");
     * @param comparison the comparison to make between the property and the value,
     * use the defined constants from {@link Restriction}: e.g. EQUALS, LIKE, etc...
     */
-   public Query(String property, Object value, int comparison) {
+   public Search(String property, Object value, int comparison) {
       restrictions = new Restriction[] { new Restriction(property, value, comparison) };
    }
 
    /**
-    * Do a query of multiple properties which must equal corresponding values,
+    * Do a search of multiple properties which must equal corresponding values,
     * all arrays should be the same length
     * @param properties the names of the properties of the object 
     * @param values the values of the properties (can be an array of items)
     */
-   public Query(String[] properties, Object[] values) {
+   public Search(String[] properties, Object[] values) {
       restrictions = new Restriction[properties.length];
       for (int i = 0; i < properties.length; i++) {
          restrictions[i] = new Restriction(properties[i], values[i]);
@@ -175,7 +208,7 @@ System.out.println("In the Copy Constructor!");
    }
 
    /**
-    * Do a query of multiple properties which must equal corresponding values,
+    * Do a search of multiple properties which must equal corresponding values,
     * control whether to do an AND or an OR between restrictions,
     * all arrays should be the same length
     * @param properties the names of the properties of the object 
@@ -183,7 +216,7 @@ System.out.println("In the Copy Constructor!");
     * @param conjunction if true then all restrictions are run using AND, 
     * if false then all restrictions are run using OR
     */
-   public Query(String[] properties, Object[] values, boolean conjunction) {
+   public Search(String[] properties, Object[] values, boolean conjunction) {
       restrictions = new Restriction[properties.length];
       for (int i = 0; i < properties.length; i++) {
          restrictions[i] = new Restriction(properties[i], values[i]);
@@ -192,14 +225,14 @@ System.out.println("In the Copy Constructor!");
    }
 
    /**
-    * Do a query of multiple properties which are compared with corresponding values,
+    * Do a search of multiple properties which are compared with corresponding values,
     * all arrays should be the same length
     * @param properties the names of the properties of the object 
     * @param values the values of the properties (can be an array of items)
     * @param comparisons the comparison to make between the property and the value,
     * use the defined constants from {@link Restriction}: e.g. EQUALS, LIKE, etc...
     */
-   public Query(String[] properties, Object[] values, int[] comparisons) {
+   public Search(String[] properties, Object[] values, int[] comparisons) {
       restrictions = new Restriction[properties.length];
       for (int i = 0; i < properties.length; i++) {
          restrictions[i] = new Restriction(properties[i], values[i], comparisons[i]);
@@ -207,7 +240,7 @@ System.out.println("In the Copy Constructor!");
    }
 
    /**
-    * Do a query of multiple properties which are compared with corresponding values,
+    * Do a search of multiple properties which are compared with corresponding values,
     * all arrays should be the same length
     * @param properties the names of the properties of the object 
     * @param values the values of the properties (can be an array of items)
@@ -216,7 +249,7 @@ System.out.println("In the Copy Constructor!");
     * @param conjunction if true then all restrictions are run using AND, 
     * if false then all restrictions are run using OR
     */
-   public Query(String[] properties, Object[] values, int[] comparisons, boolean conjunction) {
+   public Search(String[] properties, Object[] values, int[] comparisons, boolean conjunction) {
       restrictions = new Restriction[properties.length];
       for (int i = 0; i < properties.length; i++) {
          restrictions[i] = new Restriction(properties[i], values[i], comparisons[i]);
@@ -225,7 +258,7 @@ System.out.println("In the Copy Constructor!");
    }
 
    /**
-    * Do a query of multiple properties which are compared with corresponding values,
+    * Do a search of multiple properties which are compared with corresponding values,
     * sort the returned results in ascending order defined by specific sortProperties,
     * all arrays should be the same length
     * @param properties the names of the properties of the object 
@@ -234,7 +267,7 @@ System.out.println("In the Copy Constructor!");
     * use the defined constants from {@link Restriction}: e.g. EQUALS, LIKE, etc...
     * @param orders orders to sort the returned results by
     */
-   public Query(String[] properties, Object[] values, int[] comparisons, Order[] orders) {
+   public Search(String[] properties, Object[] values, int[] comparisons, Order[] orders) {
       restrictions = new Restriction[properties.length];
       for (int i = 0; i < properties.length; i++) {
          restrictions[i] = new Restriction(properties[i], values[i], comparisons[i]);
@@ -243,7 +276,7 @@ System.out.println("In the Copy Constructor!");
    }
 
    /**
-    * Do a query of multiple properties which are compared with corresponding values,
+    * Do a search of multiple properties which are compared with corresponding values,
     * sort the returned results in ascending order defined by specific sortProperties,
     * all arrays should be the same length
     * @param properties the names of the properties of the object 
@@ -254,88 +287,90 @@ System.out.println("In the Copy Constructor!");
     * @param firstResult the index of the first persisted result object to be retrieved (numbered from 0)
     * @param maxResults the maximum number of persisted result objects to retrieve (or <=0 for no limit)
     */
-   public Query(String[] properties, Object[] values, int[] comparisons, 
+   public Search(String[] properties, Object[] values, int[] comparisons, 
          Order[] orders, long firstResult, long maxResults) {
       restrictions = new Restriction[properties.length];
       for (int i = 0; i < properties.length; i++) {
          restrictions[i] = new Restriction(properties[i], values[i], comparisons[i]);
       }
       this.orders = orders;
+      this.start = firstResult;
+      this.limit = maxResults;
    }
 
    /**
-    * Defines a query which defines only a single restriction,
+    * Defines a search which defines only a single restriction,
     * defaults to AND restriction comparison and returning all results
-    * @param restriction define the limitations on the results of a query, 
+    * @param restriction define the limitations on the results of a search, 
     * e.g. propertyA > 100 or property B = 'jump'<br/> 
     * You can add as many restrictions as you like and they will be applied in the array order
     */
-   public Query(Restriction restriction) {
+   public Search(Restriction restriction) {
       this.restrictions = new Restriction[] { restriction };
    }
 
    /**
-    * Defines a query which defines only restrictions,
+    * Defines a search which defines only restrictions,
     * defaults to AND restriction comparisons and returning all results
-    * @param restrictions define the limitations on the results of a query, 
+    * @param restrictions define the limitations on the results of a search, 
     * e.g. propertyA > 100 or property B = 'jump'<br/> 
     * You can add as many restrictions as you like and they will be applied in the array order
     */
-   public Query(Restriction[] restrictions) {
+   public Search(Restriction[] restrictions) {
       this.restrictions = restrictions;
    }
 
    /**
-    * Defines a query which defines only a single restriction and returns all items,
+    * Defines a search which defines only a single restriction and returns all items,
     * defaults to AND restriction comparisons
-    * @param restriction define the limitations on the results of a query, 
+    * @param restriction define the limitations on the results of a search, 
     * e.g. propertyA > 100 or property B = 'jump'<br/> 
     * You can add as many restrictions as you like and they will be applied in the array order
-    * @param order define the order of the returned results of a query (only one order)
+    * @param order define the order of the returned results of a search (only one order)
     */
-   public Query(Restriction restriction, Order order) {
+   public Search(Restriction restriction, Order order) {
       this.restrictions = new Restriction[] { restriction };
       this.orders = new Order[] { order };
    }
 
    /**
-    * Defines a query which defines restrictions and return ordering,
+    * Defines a search which defines restrictions and return ordering,
     * defaults to AND restriction comparisons and returning all results
-    * @param restrictions define the limitations on the results of a query, 
+    * @param restrictions define the limitations on the results of a search, 
     * e.g. propertyA > 100 or property B = 'jump'<br/> 
     * You can add as many restrictions as you like and they will be applied in the array order
-    * @param order define the order of the returned results of a query (only one order)
+    * @param order define the order of the returned results of a search (only one order)
     */
-   public Query(Restriction[] restrictions, Order order) {
+   public Search(Restriction[] restrictions, Order order) {
       this.restrictions = restrictions;
       this.orders = new Order[] { order };
    }
 
    /**
-    * Defines a query which defines restrictions and return ordering,
+    * Defines a search which defines restrictions and return ordering,
     * defaults to AND restriction comparisons and returning all results
-    * @param restrictions define the limitations on the results of a query, 
+    * @param restrictions define the limitations on the results of a search, 
     * e.g. propertyA > 100 or property B = 'jump'<br/> 
     * You can add as many restrictions as you like and they will be applied in the array order
-    * @param orders define the order of the returned results of a query, 
+    * @param orders define the order of the returned results of a search, 
     * You can add as many orders as you like and they will be applied in the array order
     */
-   public Query(Restriction[] restrictions, Order[] orders) {
+   public Search(Restriction[] restrictions, Order[] orders) {
       this.restrictions = restrictions;
       this.orders = orders;
    }
 
    /**
-    * Defines a query which defines only a single restriction and limits the returns,
+    * Defines a search which defines only a single restriction and limits the returns,
     * defaults to AND restriction comparisons
-    * @param restriction define the limitations on the results of a query, 
+    * @param restriction define the limitations on the results of a search, 
     * e.g. propertyA > 100 or property B = 'jump'<br/> 
     * You can add as many restrictions as you like and they will be applied in the array order
-    * @param order define the order of the returned results of a query (only one order)
+    * @param order define the order of the returned results of a search (only one order)
     * @param start the index of the first persisted result object to be retrieved (numbered from 0)
     * @param limit the maximum number of persisted result objects to retrieve (or <=0 for no limit)
     */
-   public Query(Restriction restriction, Order order, long start, long limit) {
+   public Search(Restriction restriction, Order order, long start, long limit) {
       this.restrictions = new Restriction[] { restriction };
       this.orders = new Order[] { order };
       this.start = start;
@@ -343,16 +378,16 @@ System.out.println("In the Copy Constructor!");
    }
 
    /**
-    * Defines a query which defines restrictions and return ordering and limits the returns,
+    * Defines a search which defines restrictions and return ordering and limits the returns,
     * defaults to AND restriction comparisons
-    * @param restrictions define the limitations on the results of a query, 
+    * @param restrictions define the limitations on the results of a search, 
     * e.g. propertyA > 100 or property B = 'jump'<br/> 
     * You can add as many restrictions as you like and they will be applied in the array order
-    * @param order define the order of the returned results of a query (only one order)
+    * @param order define the order of the returned results of a search (only one order)
     * @param start the index of the first persisted result object to be retrieved (numbered from 0)
     * @param limit the maximum number of persisted result objects to retrieve (or <=0 for no limit)
     */
-   public Query(Restriction[] restrictions, Order order, long start, long limit) {
+   public Search(Restriction[] restrictions, Order order, long start, long limit) {
       this.restrictions = restrictions;
       this.orders = new Order[] { order };
       this.start = start;
@@ -360,17 +395,17 @@ System.out.println("In the Copy Constructor!");
    }
 
    /**
-    * Defines a query which defines restrictions and return ordering and limits the returns,
+    * Defines a search which defines restrictions and return ordering and limits the returns,
     * defaults to AND restriction comparisons
-    * @param restrictions define the limitations on the results of a query, 
+    * @param restrictions define the limitations on the results of a search, 
     * e.g. propertyA > 100 or property B = 'jump'<br/> 
     * You can add as many restrictions as you like and they will be applied in the array order
-    * @param orders define the order of the returned results of a query, 
+    * @param orders define the order of the returned results of a search, 
     * You can add as many orders as you like and they will be applied in the array order
     * @param start the index of the first persisted result object to be retrieved (numbered from 0)
     * @param limit the maximum number of persisted result objects to retrieve (or <=0 for no limit)
     */
-   public Query(Restriction[] restrictions, Order[] orders, long start, long limit) {
+   public Search(Restriction[] restrictions, Order[] orders, long start, long limit) {
       this.restrictions = restrictions;
       this.orders = orders;
       this.start = start;
@@ -378,18 +413,18 @@ System.out.println("In the Copy Constructor!");
    }
 
    /**
-    * Defines a query which defines restrictions and return ordering and limits the returns,
+    * Defines a search which defines restrictions and return ordering and limits the returns,
     * also specifies the types of restriction comparisons (AND or OR)
-    * @param restrictions define the limitations on the results of a query, 
+    * @param restrictions define the limitations on the results of a search, 
     * e.g. propertyA > 100 or property B = 'jump'<br/> 
     * You can add as many restrictions as you like and they will be applied in the array order
-    * @param order define the order of the returned results of a query (only one order)
+    * @param order define the order of the returned results of a search (only one order)
     * @param start the index of the first persisted result object to be retrieved (numbered from 0)
     * @param limit the maximum number of persisted result objects to retrieve (or <=0 for no limit)
     * @param conjunction if true then all restrictions are run using AND, 
     * if false then all restrictions are run using OR
     */
-   public Query(Restriction[] restrictions, Order order, long start, long limit, boolean conjunction) {
+   public Search(Restriction[] restrictions, Order order, long start, long limit, boolean conjunction) {
       this.restrictions = restrictions;
       this.orders = new Order[] { order };
       this.start = start;
@@ -398,19 +433,19 @@ System.out.println("In the Copy Constructor!");
    }
 
    /**
-    * Defines a query which defines restrictions and return ordering and limits the returns,
+    * Defines a search which defines restrictions and return ordering and limits the returns,
     * also specifies the types of restriction comparisons (AND or OR)
-    * @param restrictions define the limitations on the results of a query, 
+    * @param restrictions define the limitations on the results of a search, 
     * e.g. propertyA > 100 or property B = 'jump'<br/> 
     * You can add as many restrictions as you like and they will be applied in the array order
-    * @param orders define the order of the returned results of a query, 
+    * @param orders define the order of the returned results of a search, 
     * You can add as many orders as you like and they will be applied in the array order
     * @param start the index of the first persisted result object to be retrieved (numbered from 0)
     * @param limit the maximum number of persisted result objects to retrieve (or <=0 for no limit)
     * @param conjunction if true then all restrictions are run using AND, 
     * if false then all restrictions are run using OR
     */
-   public Query(Restriction[] restrictions, Order[] orders, long start, long limit, boolean conjunction) {
+   public Search(Restriction[] restrictions, Order[] orders, long start, long limit, boolean conjunction) {
       this.restrictions = restrictions;
       this.orders = orders;
       this.start = start;
@@ -421,7 +456,7 @@ System.out.println("In the Copy Constructor!");
    // HELPER methods
 
    /**
-    * @param restriction add this restriction to the query filter,
+    * @param restriction add this restriction to the search filter,
     * will replace an existing restriction for a similar property
     */
    public void addRestriction(Restriction restriction) {
@@ -439,7 +474,7 @@ System.out.println("In the Copy Constructor!");
    }
 
    /**
-    * @param order add this order to the query filter,
+    * @param order add this order to the search filter,
     * will replace an existing order for a similar property
     */
    public void addOrder(Order order) {
@@ -478,7 +513,7 @@ System.out.println("In the Copy Constructor!");
    }
 
    /**
-    * @return a list of all the properties on all restrictions in this query filter object
+    * @return a list of all the properties on all restrictions in this search filter object
     */
    public List<String> getRestrictionsProperties() {
       List<String> l = new ArrayList<String>();
@@ -491,29 +526,30 @@ System.out.println("In the Copy Constructor!");
    }
 
    /**
-    * @return true if this query has no defined restrictions and no orders
-    * (i.e. this is a default query so return everything in default order),
+    * @return true if this search has no defined restrictions and no orders
+    * (i.e. this is a default search so return everything in default order),
     * false if there are any defined restrictions or orders
     */
    public boolean isEmpty() {
       boolean empty = false;
       if ((restrictions == null || restrictions.length == 0) 
-            && (orders == null || orders.length == 0) ) {
+            && (orders == null || orders.length == 0) 
+            && queryString == null) {
          empty = true;
       }
       return empty;
    }
 
    /**
-    * Resets the query object to empty state
+    * Resets the search object to empty state
     */
    public void reset() {
       restrictions = new Restriction[] {};
       orders = new Order[] {};
       conjunction = false;
+      queryString = null;
       start = 0;
       limit = 0;
-      searchString = null;
    }
 
    /**
@@ -554,6 +590,11 @@ System.out.println("In the Copy Constructor!");
       return newArray;
    }
 
+   /**
+    * Utility method to convert an array to a string
+    * @param array any array
+    * @return a string version of the array
+    */
    public static String arrayToString(Object[] array) {
       StringBuilder result = new StringBuilder();
       if (array != null && array.length > 0) {
@@ -570,10 +611,62 @@ System.out.println("In the Copy Constructor!");
    }
 
    @Override
+   protected Object clone() throws CloneNotSupportedException {
+      return copy(this, null);
+   }
+
+   /**
+    * Make a copy of a search object
+    * @param original the search object to copy
+    * @param copy the search object make equivalent to the original,
+    * can be null to generate a new one
+    * @return the copy of the original
+    */
+   public static Search copy(Search original, Search copy) {
+      if (copy == null) {
+         copy = new Search();
+      }
+      copy.setStart(original.getStart());
+      copy.setLimit(original.getLimit());
+      copy.setConjunction(original.isConjunction());
+      copy.setQueryString(original.getQueryString());
+      // TODO probably need to copy the arrays here
+      copy.setRestrictions(original.getRestrictions());
+      copy.setOrders(original.getOrders());
+      return copy;
+   }
+
+   @Override
+   public boolean equals(Object obj) {
+      if (null == obj)
+         return false;
+      if (!(obj instanceof Search))
+         return false;
+      else {
+         Search castObj = (Search) obj;
+         boolean eq = this.start == castObj.start
+               && this.limit == castObj.limit
+               && this.conjunction == castObj.conjunction
+               && (this.queryString == null ? castObj.queryString == null : this.queryString.equals(castObj.queryString))
+               && Arrays.deepEquals(this.restrictions, castObj.restrictions)
+               && Arrays.deepEquals(this.orders, castObj.orders);
+         return eq;
+      }
+   }
+
+   @Override
+   public int hashCode() {
+      if (this.isEmpty())
+         return super.hashCode();
+      String hashStr = this.getClass().getName() + ":" + this.start + ":" + this.limit + ":" + this.conjunction + ":"
+         + this.queryString + ":" + arrayToString(restrictions) + ":" + arrayToString(orders);
+      return hashStr.hashCode();
+   }
+
+   @Override
    public String toString() {
-      return "query::start:" + start + ",limit:" + limit + ",search:" + searchString + 
-      ",conj:" + conjunction + ",restricts:" + arrayToString(restrictions) + 
-      ",orders:" + arrayToString(orders);
+      return "search::start:" + start + ",limit:" + limit + ",conj:" + conjunction + ",query:" + queryString 
+         + ",restricts:" + arrayToString(restrictions) + ",orders:" + arrayToString(orders);
    }
 
 }
