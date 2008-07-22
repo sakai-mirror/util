@@ -184,6 +184,8 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 			 if ( userId != null )
 			 {
 				 loc = getLocale( userId );
+				 if ( loc == null )
+					 loc = Locale.getDefault();
 			 }
 			 
 			 else
@@ -222,7 +224,7 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	}
 
 	/**
-	 ** Get user's preferred locale
+	 ** Get user's preferred locale (or null if not set)
 	 ***/
 	public Locale getLocale( String userId )
 	{
@@ -239,12 +241,6 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 				loc = new Locale(locValues[0], locValues[1]); // language, country
 			else if (locValues.length == 1) 
 				loc = new Locale(locValues[0]); // just language
-		}
-		
-		// Otherwise, return system default locale
-		else
-		{
-			loc = Locale.getDefault();
 		}
 		
 		return loc;
