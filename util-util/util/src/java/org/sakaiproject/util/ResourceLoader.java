@@ -231,6 +231,7 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		ResourceProperties locProps = prefs.getProperties(APPLICATION_ID);
 		String localeString = locProps.getProperty(LOCALE_KEY);
 		
+		// Parse user locale preference if set
 		if (localeString != null)
 		{
 			String[] locValues = localeString.split("_");
@@ -238,6 +239,12 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 				loc = new Locale(locValues[0], locValues[1]); // language, country
 			else if (locValues.length == 1) 
 				loc = new Locale(locValues[0]); // just language
+		}
+		
+		// Otherwise, return system default locale
+		else
+		{
+			loc = Locale.getDefault();
 		}
 		
 		return loc;
