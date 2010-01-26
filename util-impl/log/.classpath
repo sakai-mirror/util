@@ -1,0 +1,8 @@
+<classpath>
+  <classpathentry kind="src" path="src/conf" including="**/*.properties" excluding="**/*.java"/>
+  <classpathentry kind="output" path="m2-target/classes"/>
+  <classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar"/>
+  <classpathentry kind="var" path="M2_REPO/junit/junit/3.8.1/junit-3.8.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+</classpath>
